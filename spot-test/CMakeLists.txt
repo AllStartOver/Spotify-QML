@@ -26,3 +26,11 @@ target_link_libraries(spot-test
     PRIVATE Qt6::Test
     PRIVATE ${SPOT_LIB}
 )
+
+if (WIN32)
+    target_compile_definitions(spot-test PRIVATE WINDOWS)
+endif()
+
+if (APPLE)
+    target_compile_definitions(spot-test PRIVATE MACOS)
+endif()

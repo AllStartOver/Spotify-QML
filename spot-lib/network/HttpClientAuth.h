@@ -3,6 +3,8 @@
 #include <QScopedPointer>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "libSpotify_global.h"
 
 namespace libspot {
@@ -20,10 +22,12 @@ public:
     const QString client_id,
     const QString client_secret
   );
-  void processReply();
+
+public slots:
+  void processReply(QNetworkReply *reply);
 
 signals:
-  void tokenReceived();
+  void tokenReceived(QString access_token, QString refresh_token);
 
 private:
   class Implementation;

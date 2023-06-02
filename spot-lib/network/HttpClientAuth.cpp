@@ -33,27 +33,32 @@ public:
     manager->post(request, data.toUtf8());
   }
 
-  void processReply()
+  void processReply(QNetworkReply *reply)
   {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(parent->sender());
-    if (reply->error() != QNetworkReply::NoError) {
-      qDebug() << "Error: " << reply->errorString();
-      return;
-    }
+    QString response = reply->readAll();
+    QJsonDocument json = QJsonDocument::fromJson(response.toUtf8());  
+    QJsonObject jsonObject = json.object();
 
-    QString response = QString(reply->readAll());
-    reply->deleteLater();
+    QString access_token = jsonObject["access_token"].toString();
+    QString refresh_token = jsonObject["refresh_token"].toString();
+
+    qDebug() << "access_token: " << access_token;
+    qDebug() << "refresh_token: " << refresh_token;
+    
+    emit parent->tokenReceived(access_token, refresh_token);
   }
 
   HttpClientAuth *parent;
   QNetworkAccessManager *manager;
+  QString access_token;
+  QString refresh_token;
 };
 
 HttpClientAuth::HttpClientAuth(QObject *parent)
   : QObject(parent)
 {
   impl.reset(new Implementation(this));
-  QObject::connect(impl->manager, &QNetworkAccessManager::finished, this, &HttpClientAuth::processReply);
+  connect(impl->manager, &QNetworkAccessManager::finished, this, &HttpClientAuth::processReply);
 }
 
 HttpClientAuth::~HttpClientAuth()
@@ -70,9 +75,9 @@ void HttpClientAuth::post(
   return impl->post(code, redirect_url, client_id, client_secret);
 }
 
-void HttpClientAuth::processReply()
+void HttpClientAuth::processReply(QNetworkReply *reply)
 {
-  return impl->processReply();
+  return impl->processReply(reply);
 }
 
 }}
