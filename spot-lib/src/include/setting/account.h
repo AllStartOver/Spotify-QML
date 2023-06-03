@@ -13,9 +13,10 @@ struct Account : public BaseSetting
   QString client_secret;
 
   Account();
-  ~Account() override = default;
+  ~Account() override;
 
   QJsonObject toJson() const override;
+  void readFromFile(const QString& filePath) override;
 };
 
 

@@ -5,9 +5,18 @@ namespace setting {
 
 BaseSetting::BaseSetting() {}
 
-BaseSetting::saveToFile(const QString &filepath) const
+BaseSetting::~BaseSetting() {}
+
+void BaseSetting::saveToFile(const QString &filepath) const
 {
   QFile file(filepath);
+
+  // create the directory if it doesn't exist
+  QDir dir = QFileInfo(filepath).absoluteDir();
+  if (!dir.exists())
+  {
+    dir.mkpath(".");
+  }
 
   if (file.open(QIODevice::WriteOnly | QIODevice::Text))
   {

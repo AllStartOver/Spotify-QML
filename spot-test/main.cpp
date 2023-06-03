@@ -10,9 +10,6 @@ int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
   QCoreApplication app(argc, argv);
-  QString rootPath = QCoreApplication::applicationDirPath();
-
-  qDebug() << rootPath;
 
   return RUN_ALL_TESTS();
 }
