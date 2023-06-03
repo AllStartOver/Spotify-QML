@@ -11,21 +11,32 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
     set(CMAKE_PREFIX_PATH "C:/Qt/6.5.0/msvc2019_64/lib/cmake" "C:/libs/lib/cmake")
     find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network)
-    find_package(fmt REQUIRED) 
+elseif(APPLE)
+    find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network)
 endif()
 
 include_directories(
     .
-    controllers
-    network
+    src/include
 )
 
-aux_source_directory(controllers CONTROLLERS_SOURCE)
-aux_source_directory(network NETWORK_SOURCE)
+# collect sources
+aux_source_directory(src/network NETWORK_SOURCES)
+aux_source_directory(src/controllers CONTROLLERS_SOURCES)
+aux_source_directory(src/setting SETTING_SOURCES)
+
+# collect headers
+file(GLOB NETWORK_HEADERS src/include/network/*.h)
+file(GLOB CONTROLLERS_HEADERS src/include/controllers/*.h)
+file(GLOB SETTING_HEADERS src/include/setting/*.h)
 
 add_library(spotify-qml STATIC
-    ${CONTROLLERS_SOURCE}
-    ${NETWORK_SOURCE}
+    ${NETWORK_SOURCES}
+    ${CONTROLLERS_SOURCES}
+    ${SETTING_SOURCES}
+    ${NETWORK_HEADERS}
+    ${CONTROLLERS_HEADERS}
+    ${SETTING_HEADERS}
     libSpotify_global.h
 )
 
@@ -38,4 +49,6 @@ target_compile_definitions(spotify-qml PRIVATE LIBSPOTIFY_LIBRARY)
 
 if(WIN32)
     target_compile_definitions(spotify-qml PRIVATE WINDOWS)
+elseif(APPLE)
+    target_compile_definitions(spotify-qml PRIVATE MACOS)
 endif()

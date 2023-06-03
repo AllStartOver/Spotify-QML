@@ -4,6 +4,9 @@
 #include <QScopedPointer>
 #include "network/AuthServer.h"
 #include "network/HttpClientAuth.h"
+#include "setting/account.h"
+
+#include "libSpotify_global.h"
 
 #ifdef WINDOWS
   #include <Windows.h>
@@ -40,7 +43,7 @@ using namespace libspot::network;
 namespace libspot {
 namespace controllers {
 
-class AuthController : public QObject
+class LIBSPOTIFYSHARED_EXPORT AuthController : public QObject
 {
   Q_OBJECT
 public:
@@ -50,9 +53,15 @@ public:
   void setupAuthorization();
   void openAuthPage() const;
 
+  // status
+  bool isAuthServerListening() const;
+
 public slots:
   void onCodeReceived(QString code);
   void onTokenReceived(QString access_token, QString refresh_token);
+
+signals:
+  void authFinished();
 
 private:
   class Implementation;

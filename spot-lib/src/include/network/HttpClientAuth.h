@@ -28,6 +28,7 @@ public slots:
 
 signals:
   void tokenReceived(QString access_token, QString refresh_token);
+  void tokenExpired();
 
 private:
   class Implementation;

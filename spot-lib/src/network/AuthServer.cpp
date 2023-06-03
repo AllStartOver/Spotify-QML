@@ -1,4 +1,4 @@
-#include "AuthServer.h"
+#include "network/AuthServer.h"
 
 namespace libspot {
 namespace network {

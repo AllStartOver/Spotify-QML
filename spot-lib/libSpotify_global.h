@@ -1,4 +1,4 @@
-#ifndef LIBPORNO_GLOBAL_H
+#ifndef LIBSPOTIFY_GLOBAL_H
 #define LIBSPOTIFY_GLOBAL_H 
 
 #include <QtCore/qglobal.h>

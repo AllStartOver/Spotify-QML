@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
-#include <QEventLoop>
 #include <QSignalSpy>
+#include <QDebug>
 #include <iostream>
 #include <string>
 #include <gtest/gtest.h>
@@ -68,11 +68,13 @@ TEST_F(AuthServerTest, checkCodeReceived)
   // Open the Auth PAGE in the default browser
   #ifdef WINDOWS
     ShellExecuteA(0, 0, url.toStdString().c_str(), 0, 0, SW_SHOW);
+  #else
+    qDebug() << "Please open the following URL in your browser: " << url;
   #endif
 
-  #ifdef MACOS
-  #endif
   QSignalSpy spy(authServer, SIGNAL(codeReceived(QString)));
-  spy.wait(3000);
+  spy.wait(10000);
+  CODE_TEST = spy.at(0).at(0).toString();
+  qDebug() << CODE_TEST;
   EXPECT_EQ(spy.count(), 1);
 }

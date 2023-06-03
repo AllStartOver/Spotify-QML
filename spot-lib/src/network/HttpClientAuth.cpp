@@ -1,9 +1,8 @@
-#include "HttpClientAuth.h"
-
+#include "network/HttpClientAuth.h"
 namespace libspot {
 namespace network {
 
-const QUrl URL_TOKEN = QUrl("https://accounts.spotify.com/api/token");
+inline const QUrl URL_TOKEN = QUrl("https://accounts.spotify.com/api/token");
 
 class HttpClientAuth::Implementation
 {
@@ -35,6 +34,10 @@ public:
 
   void processReply(QNetworkReply *reply)
   {
+    if (reply->error() != QNetworkReply::NoError) {
+      emit parent->tokenExpired();
+      return;
+    }
     QString response = reply->readAll();
     QJsonDocument json = QJsonDocument::fromJson(response.toUtf8());  
     QJsonObject jsonObject = json.object();

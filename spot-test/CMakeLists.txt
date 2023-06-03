@@ -6,10 +6,21 @@ if(WIN32)
     set(CMAKE_PREFIX_PATH "C:/libs/lib/cmake" "C:/Qt/6.5.0/msvc2019_64/lib/cmake")
     find_package(GTest REQUIRED)
     find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Gui Test)
+elseif(APPLE)
+    find_package(GTest REQUIRED)
+    find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Gui Test)
 endif()
 
-include_directories(../spot-lib)
-file(GLOB SPOT_LIB "../spot-lib/build/Debug/*.lib")
+include_directories(../spot-lib/src/include 
+    ../spot-lib/
+)
+
+if(WIN32)
+    file(GLOB SPOT_LIB "../spot-lib/build/Debug/*.lib")
+elseif(APPLE)
+    file(GLOB SPOT_LIB "../spot-lib/build/*.a")
+endif()
+
 message(${SPOT_LIB})
 
 include_directories(testsuite)
