@@ -1,4 +1,5 @@
 #include "controllers/AuthController.h"
+#include "network/spotify-api/PlayerAPI.h"
 
 namespace libspot {
 namespace controllers {
@@ -11,6 +12,7 @@ public:
   {
     authServer = new AuthServer(_parent);
     httpClientAuth = new HttpClientAuth(_parent);
+    account = new libspot::setting::Account();
   }
 
   void openAuthPage() const
@@ -46,15 +48,15 @@ public:
 
   void onTokenReceived(QString access_token, QString refresh_token)
   {
-    qDebug() << "Received access token: " << access_token;
-    qDebug() << "Received refresh token: " << refresh_token;
+    account->access_token = access_token;
+    account->refresh_token = refresh_token;
     emit parent->authFinished();
   }
 
   AuthController* parent;
   AuthServer *authServer;
   HttpClientAuth *httpClientAuth; 
-  libspot::setting::Account account;
+  libspot::setting::Account *account;
 };
 
 AuthController::AuthController(QObject *parent)
@@ -77,6 +79,11 @@ void AuthController::setupAuthorization()
 void AuthController::openAuthPage() const
 {
   return impl->openAuthPage();
+}
+
+libspot::setting::Account* AuthController::getAccount() const
+{
+  return impl->account;
 }
 
 // SLOTS

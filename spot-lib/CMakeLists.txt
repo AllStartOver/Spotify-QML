@@ -24,9 +24,11 @@ include_directories(
 aux_source_directory(src/network NETWORK_SOURCES)
 aux_source_directory(src/controllers CONTROLLERS_SOURCES)
 aux_source_directory(src/setting SETTING_SOURCES)
+aux_source_directory(src/network/spotify-api SPOTIFY_SOURCES)
 
 # collect headers
 file(GLOB NETWORK_HEADERS src/include/network/*.h)
+file(GLOB SPOTIFY_HEADERS src/include/network/spotify-api/*.h)
 file(GLOB CONTROLLERS_HEADERS src/include/controllers/*.h)
 file(GLOB SETTING_HEADERS src/include/setting/*.h)
 
@@ -34,7 +36,9 @@ add_library(spotify-qml STATIC
     ${NETWORK_SOURCES}
     ${CONTROLLERS_SOURCES}
     ${SETTING_SOURCES}
+    ${SPOTIFY_SOURCES}
     ${NETWORK_HEADERS}
+    ${SPOTIFY_HEADERS}
     ${CONTROLLERS_HEADERS}
     ${SETTING_HEADERS}
     libSpotify_global.h

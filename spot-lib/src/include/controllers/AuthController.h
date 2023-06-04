@@ -52,6 +52,7 @@ public:
 
   void setupAuthorization();
   void openAuthPage() const;
+  libspot::setting::Account* getAccount() const;
 
   // status
   bool isAuthServerListening() const;

@@ -45,9 +45,6 @@ public:
     QString access_token = jsonObject["access_token"].toString();
     QString refresh_token = jsonObject["refresh_token"].toString();
 
-    qDebug() << "access_token: " << access_token;
-    qDebug() << "refresh_token: " << refresh_token;
-    
     emit parent->tokenReceived(access_token, refresh_token);
   }
 

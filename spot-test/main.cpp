@@ -4,7 +4,8 @@
 // #include "testsuite/network/AuthServer.h"
 // #include "testsuite/network/HttpAuthClient.h"
 // #include "testsuite/controllers/AuthControllerTest.h"
-#include "testsuite/setting/AccountTest.h"
+// #include "testsuite/setting/AccountTest.h"
+#include "testsuite/network/spotify-api/PlayerAPITest.h"
 
 int main(int argc, char **argv)
 {

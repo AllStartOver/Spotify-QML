@@ -54,4 +54,6 @@ TEST_F(AuthControllerTest, checkAuthReceived)
   QSignalSpy spy(authController, SIGNAL(authFinished()));
   spy.wait(10000);
   EXPECT_EQ(spy.count(), 1);
+  qDebug() << authController->getAccount()->access_token;
+  qDebug() << authController->getAccount()->refresh_token;
 }
