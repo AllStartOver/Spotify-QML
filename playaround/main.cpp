@@ -17,6 +17,5 @@ int main(int argc, char *argv[])
     auth->listen();
     std::cout << auth->isListening() << std::endl;
     auth->openUrl();
-    
     return app.exec();
 }

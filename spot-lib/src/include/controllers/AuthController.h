@@ -34,25 +34,27 @@ inline const QVector<QString> SCOPES = {
   "user-top-read"
 };
 
-inline const QString CLIENT_ID = QString("92f036ac89bc4899921c9a20b85bce4a");
-inline const QString CLIENT_SECRET = QString("1d38b76e3d064049b065029e0c0e1207");
+inline const QString CLIENT_ID = QString("92134be6239042ee942a8c553f946b9b");
+inline const QString CLIENT_SECRET = QString("1b87b0c02bf542b7993dfcd660ae1a31");
 inline const QString REDIRECT_URL = QString("http://localhost:8888");
 
 using namespace libspot::network;
+using namespace libspot::setting;
 
 namespace libspot {
 namespace controllers {
 
-class LIBSPOTIFYSHARED_EXPORT AuthController : public QObject
+class AuthController : public QObject
 {
   Q_OBJECT
 public:
-  AuthController(QObject *parent = 0);
+  explicit AuthController(QObject *parent = 0, Account *account = 0);
   ~AuthController();
 
   void setupAuthorization();
   void openAuthPage() const;
-  libspot::setting::Account* getAccount() const;
+  void refreshAccessToken();
+  Account* getAccount() const;
 
   // status
   bool isAuthServerListening() const;
@@ -60,6 +62,7 @@ public:
 public slots:
   void onCodeReceived(QString code);
   void onTokenReceived(QString access_token, QString refresh_token);
+  void onTokenRefreshed(QString access_token);
 
 signals:
   void authFinished();

@@ -13,9 +13,17 @@ public:
   BaseAPI(){};
   virtual ~BaseAPI() {}
 
-  virtual void get() = 0;
-  virtual void post() = 0;
-  virtual void put() = 0;
+  void log(QNetworkReply* reply, QString endpoint)
+  {
+    int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if (reply->error() == QNetworkReply::NoError) {
+      qDebug() << QString("%1 successful: %2").arg(endpoint).arg(reply->readAll());
+    }
+    else {
+      qDebug() << QString("%1 failed: %2 : %3").arg(endpoint).arg(status).arg(reply->errorString());
+    }
+    reply->deleteLater();
+  }
 };
 
 }}}

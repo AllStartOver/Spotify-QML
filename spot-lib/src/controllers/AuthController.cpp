@@ -8,11 +8,19 @@ using namespace libspot::network;
 class AuthController::Implementation
 {
 public:
-  Implementation(AuthController *_parent) : parent(_parent)
+  Implementation(AuthController *_parent, Account *_account) 
+    : parent(_parent),
+      account(_account)
   {
     authServer = new AuthServer(_parent);
-    httpClientAuth = new HttpClientAuth(_parent);
-    account = new libspot::setting::Account();
+    httpClientAuth = new HttpClientAuth(_parent, _account);
+  }
+
+  void setupAuthorization()
+  {
+    if (!authServer->isListening()) {
+      authServer->listen();
+    }
   }
 
   void openAuthPage() const
@@ -39,11 +47,16 @@ public:
     #endif
   }
 
+  void refreshAccessToken()
+  {
+    httpClientAuth->refresh_post(account->refresh_token, CLIENT_ID, CLIENT_SECRET);
+  }
+
   // SLOTS 
 
   void onCodeReceived(QString code)
   {
-    httpClientAuth->post(code, REDIRECT_URL, CLIENT_ID, CLIENT_SECRET);
+    httpClientAuth->token_post(code, REDIRECT_URL, CLIENT_ID, CLIENT_SECRET);
   }
 
   void onTokenReceived(QString access_token, QString refresh_token)
@@ -53,18 +66,28 @@ public:
     emit parent->authFinished();
   }
 
+  void onTokenRefreshed(QString access_token)
+  {
+    account->access_token = access_token;
+    emit parent->authFinished();
+  }
+
   AuthController* parent;
   AuthServer *authServer;
   HttpClientAuth *httpClientAuth; 
-  libspot::setting::Account *account;
+  Account *account;
 };
 
-AuthController::AuthController(QObject *parent)
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+AuthController::AuthController(QObject *parent, Account *account)
   : QObject(parent)
 {
-  impl.reset(new Implementation(this));
+  impl.reset(new Implementation(this, account));
   connect(impl->authServer, &AuthServer::codeReceived, this, &AuthController::onCodeReceived);
   connect(impl->httpClientAuth, &HttpClientAuth::tokenReceived, this, &AuthController::onTokenReceived);
+  connect(impl->httpClientAuth, &HttpClientAuth::tokenUpdated, this, &AuthController::onTokenRefreshed);
 }
 
 AuthController::~AuthController()
@@ -81,12 +104,17 @@ void AuthController::openAuthPage() const
   return impl->openAuthPage();
 }
 
-libspot::setting::Account* AuthController::getAccount() const
+void AuthController::refreshAccessToken()
+{
+  return impl->refreshAccessToken();
+}
+
+Account* AuthController::getAccount() const
 {
   return impl->account;
 }
 
-// SLOTS
+// SLOTS //
 
 void AuthController::onCodeReceived(QString code)
 {
@@ -96,6 +124,11 @@ void AuthController::onCodeReceived(QString code)
 void AuthController::onTokenReceived(QString access_token, QString refresh_token)
 {
   return impl->onTokenReceived(access_token, refresh_token);
+}
+
+void AuthController::onTokenRefreshed(QString access_token)
+{
+  return impl->onTokenRefreshed(access_token);
 }
 
 bool AuthController::isAuthServerListening() const

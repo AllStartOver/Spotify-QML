@@ -17,7 +17,7 @@ struct BaseSetting {
   virtual ~BaseSetting() = 0;
 
   QJsonObject virtual toJson() const = 0;
-  void virtual readFromFile(const QString& filePath) = 0;
+  bool virtual readFromFile(const QString& filePath) = 0;
 
   void saveToFile(const QString& filePath) const;
 };

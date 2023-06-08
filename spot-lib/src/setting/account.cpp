@@ -17,12 +17,12 @@ QJsonObject Account::toJson() const
   return json;
 }
 
-void Account::readFromFile(const QString& filePath)
+bool Account::readFromFile(const QString& filePath)
 {
   if (filePath.isEmpty())
   {
     qDebug() << "Account::readFromFile: filePath is empty";
-    return; 
+    return false;
   }
   QFile file(filePath);
   if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -36,6 +36,6 @@ void Account::readFromFile(const QString& filePath)
     refresh_token = json["refresh_token"].toString();
     file.close();
   }
+  return true;
 }
-
 }}

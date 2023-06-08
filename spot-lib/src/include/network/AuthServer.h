@@ -14,7 +14,7 @@
 namespace libspot {
 namespace network {
 
-class LIBSPOTIFYSHARED_EXPORT AuthServer : public QTcpServer
+class AuthServer : public QTcpServer
 {
   Q_OBJECT
 public: 

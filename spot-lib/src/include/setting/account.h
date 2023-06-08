@@ -16,7 +16,7 @@ struct Account : public BaseSetting
   ~Account() override;
 
   QJsonObject toJson() const override;
-  void readFromFile(const QString& filePath) override;
+  bool readFromFile(const QString& filePath) override;
 };
 
 
