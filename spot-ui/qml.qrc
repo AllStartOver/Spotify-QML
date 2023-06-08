@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>qml/MainWindow.qml</file>
+        <file>qml/Player.qml</file>
+        <!-- Add more file entries as needed -->
+    </qresource>
+</RCC>
