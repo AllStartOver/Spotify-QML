@@ -10,12 +10,24 @@ target_link_libraries(ImagesLib PRIVATE Qt6::Quick)
 
 set(images 
   "pause.svg"
+  "pause2.svg"
   "play.svg"
+  "play2.svg"
   "trackNext.svg"
   "trackPrev.svg"
   "volumnHigh.svg"
   "volumnLow.svg"
   "volumnMuted.svg"
+  "devices.svg"
+  "loop.svg"
+  "loopEnabled.svg"
+  "singleLoop.svg"
+  "queue.svg"
+  "queueOpened.svg"
+  "shuffle.svg"
+  "shuffleEnabled.svg"
+  "heartGray.svg"
+  "heartGreen.svg"
 )
 
 qt_add_qml_module(ImagesLib
