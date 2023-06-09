@@ -24,7 +24,8 @@ protected:
 
   virtual void SetUp() override
   {
-    account = new Account();
+    QString rootPath = QCoreApplication::applicationDirPath();
+    account = new Account(rootPath);
   }
 
   virtual void TearDown() override
@@ -34,6 +35,11 @@ protected:
 
   Account *account;
 };
+
+TEST_F(AccountTest, checkLocalFileNotExist)
+{
+  EXPECT_FALSE(account->localFileExists());
+}
 
 TEST_F(AccountTest, checkMemberVariableInitialization)
 {
@@ -57,20 +63,24 @@ TEST_F(AccountTest, checkSavetoFile)
   account->access_token = "access_token";
   account->refresh_token = "refresh_token";
 
-  QString path = QCoreApplication::applicationDirPath() + "/setting" + "/account.json";
-  account->saveToFile(path);
+  account->saveToFile();
 }
 
 TEST_F(AccountTest, checkReadFromFile)
 {
-  QString path = QCoreApplication::applicationDirPath() + "/setting" + "/account.json";
-  account->readFromFile(path);
+  account->readFromFile();
 
   EXPECT_EQ(account->client_id, "client_id");
   EXPECT_EQ(account->client_secret, "client_secret");
   EXPECT_EQ(account->access_token, "access_token");
   EXPECT_EQ(account->refresh_token, "refresh_token");
 }
+
+TEST_F(AccountTest, checkLocalFileExist)
+{
+  EXPECT_TRUE(account->localFileExists());
+}
+
 
 
 

@@ -13,34 +13,50 @@
 using namespace libspot::controllers;
 using namespace libspot::setting;
 using namespace libspot::network::API;
+using namespace libspot::data;
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
-    QQmlApplicationEngine engine; 
+  QGuiApplication app(argc, argv);
+  QQmlApplicationEngine engine; 
 
-    // Account account;
-    // AuthController authController(nullptr, &account);
+  QString rootPath = QCoreApplication::applicationDirPath();
+  Account account(rootPath);
+  AuthController authController(nullptr, &account);
 
-    // authController.setupAuthorization();
-    // authController.openAuthPage();
+  if(!account.localFileExists()) 
+  {
+		authController.setupAuthorization();
+		authController.openAuthPage();      
+		QEventLoop loop;
+		QObject::connect(&authController, &AuthController::authFinished, &loop, &QEventLoop::quit);
+		loop.exec();
+		account.saveToFile();
+		qDebug() << "Auth finished";
+  }
+	else
+	{
+		account.readFromFile();
+		authController.refreshAccessToken();
+		QEventLoop loop;
+		QObject::connect(&authController, &AuthController::authFinished, &loop, &QEventLoop::quit);
+		loop.exec();
+		qDebug() << "Refresh finished";
+	}
 
-    // QEventLoop loop;
-    // QObject::connect(&authController, &AuthController::authFinished, &loop, &QEventLoop::quit);
-    // loop.exec();
+  QString access_token = authController.getAccount()->access_token;
+  PlayerAPI playerAPI(access_token);
 
-    // qDebug() << "Auth finished";
+  qmlRegisterType<PlayerAPI>("libspot", 1, 0, "PlayerAPI");
+	qmlRegisterType<PlayerState>("libspot", 1, 0, "PlayerState");
 
-    // QString access_token = authController.getAccount()->access_token;
-    // PlayerAPI playerAPI(access_token);
+  // register types
+  engine.rootContext()->setContextProperty("playerAPI", &playerAPI);
+	engine.rootContext()->setContextProperty("playerState", &playerAPI.getPlayerState());
+	// load qml
+  engine.addImportPath(":/spotify-qml/imports");
+  const QUrl url(u"qrc:/spotify-qml/imports/Views/qml/MainWindow.qml"_qs);
+  engine.load(url);
 
-    // qmlRegisterType<PlayerAPI>("libspot.network.api", 1, 0, "PlayerAPI");
-
-    // // register types
-    // engine.rootContext()->setContextProperty("playerAPI", &playerAPI);
-    engine.addImportPath(":/spotify-qml/imports");
-    const QUrl url(u"qrc:/spotify-qml/imports/Views/qml/MainWindow.qml"_qs);
-    engine.load(url);
-
-    return app.exec();
+  return app.exec();
 }

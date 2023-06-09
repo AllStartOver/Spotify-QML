@@ -4,6 +4,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include "network/spotify-api/BaseAPI.h"
+#include "data/playerState.h"
 
 namespace libspot {
 namespace network {
@@ -20,9 +21,16 @@ public:
   Q_INVOKABLE void resumePlayback();
   Q_INVOKABLE void prevTrack();
   Q_INVOKABLE void nextTrack();
+  Q_INVOKABLE void seekTrack(int positionMs);
+
+  libspot::data::PlayerState& getPlayerState();
+
+  QString& getCurrentDeviceId() const;
+  QString& getCurrentDeviceName() const;
+
 signals:
-  void signalPausePlayback(QNetworkReply* reply);
-  void signalResumePlayback(QNetworkReply* reply);
+  void signalGetPlayerStateFinished();
+
 public slots:
   void onPausePlayback(QNetworkReply* reply);
   void onResumePlayback(QNetworkReply* reply);

@@ -3,7 +3,10 @@
 namespace libspot {
 namespace setting {
 
-Account::Account() {}
+Account::Account(QString rootPath)
+{
+  file_path = rootPath + "/setting" + "/account.json";
+}
 
 Account::~Account() {}
 
@@ -17,14 +20,14 @@ QJsonObject Account::toJson() const
   return json;
 }
 
-bool Account::readFromFile(const QString& filePath)
+bool Account::readFromFile()
 {
-  if (filePath.isEmpty())
+  if (file_path.isEmpty())
   {
     qDebug() << "Account::readFromFile: filePath is empty";
     return false;
   }
-  QFile file(filePath);
+  QFile file(file_path);
   if (file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     QString jsonString = file.readAll();
@@ -38,4 +41,20 @@ bool Account::readFromFile(const QString& filePath)
   }
   return true;
 }
+
+bool Account::localFileExists()
+{
+  if (file_path.isEmpty())
+  {
+    qDebug() << "Account::localFileExists: path is empty";
+    return false;
+  }
+  QFile file(file_path);
+  if (file.exists())
+  {
+    return true;
+  }
+  return false;
+}
+
 }}

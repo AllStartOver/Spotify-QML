@@ -12,11 +12,12 @@ struct Account : public BaseSetting
   QString client_id;
   QString client_secret;
 
-  Account();
+  Account(QString rootPath);
   ~Account() override;
 
   QJsonObject toJson() const override;
-  bool readFromFile(const QString& filePath) override;
+  bool readFromFile() override;
+  bool localFileExists();
 };
 
 

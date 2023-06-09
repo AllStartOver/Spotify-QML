@@ -12,8 +12,15 @@ public:
       access_token(_access_token)
   {
     manager = new QNetworkAccessManager(parent);
-    QObject::connect(parent, &PlayerAPI::signalPausePlayback, parent, &PlayerAPI::onPausePlayback);
-    QObject::connect(parent, &PlayerAPI::signalResumePlayback, parent, &PlayerAPI::onResumePlayback);
+    requestPlayerState();
+  }
+
+  void requestPlayerState()
+  {
+    QString endpoint = "";
+    QNetworkRequest request = createBaseRequest(endpoint);
+    QNetworkReply *reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onGetPlayerState(reply); });
   }
 
   void pausePlayback()
@@ -48,7 +55,40 @@ public:
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onNextTrack(reply); });
   }
 
-  // SLOTS
+  void seekTrack(int positionMs)
+  {
+    QString endpoint = "/seek?position_ms=" + QString::number(positionMs);
+    QNetworkRequest request = createBaseRequest(endpoint);
+
+    QNetworkReply *reply = manager->put(request, QByteArray());
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onSeekTrack(reply); });
+  }
+
+  // SLOTS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  void onGetPlayerState(QNetworkReply* reply)
+  {
+    if(reply->error() != QNetworkReply::NoError) 
+    {
+      qDebug() << "Error: " << reply->errorString();
+      reply->deleteLater();
+      return;
+    }
+
+    QByteArray data = reply->readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+
+    if (doc.isNull() || !doc.isObject()) {
+      qDebug() << "Failed to create JSON doc.";
+      reply->deleteLater();
+      return;
+    }
+    QJsonObject obj = doc.object();
+    playerState.feed_json(obj);
+    reply->deleteLater();
+    emit parent->signalGetPlayerStateFinished();
+  }
+
   void onPausePlayback(QNetworkReply* reply)
   {
     parent->log(reply, "Pause playback");
@@ -69,6 +109,11 @@ public:
     parent->log(reply, "Next track");
   }
 
+  void onSeekTrack(QNetworkReply* reply)
+  {
+    parent->log(reply, "Seek track");
+  }
+
   // Helper functions
   QNetworkRequest createBaseRequest(QString& endpoint)
   {
@@ -84,6 +129,7 @@ public:
 
   QString baseURL = "https://api.spotify.com/v1/me/player";
   QString &access_token;
+  libspot::data::PlayerState playerState;
 };
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -97,6 +143,13 @@ PlayerAPI::PlayerAPI(QString &access_token)
 PlayerAPI::~PlayerAPI()
 {
 }
+
+libspot::data::PlayerState& PlayerAPI::getPlayerState()
+{
+  return impl->playerState;
+}
+
+// Q_INVOKABLE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 void PlayerAPI::pausePlayback()
 {
@@ -116,6 +169,22 @@ void PlayerAPI::prevTrack()
 void PlayerAPI::nextTrack()
 {
   return impl->nextTrack();
+}
+
+void PlayerAPI::seekTrack(int positionMs)
+{
+  return impl->seekTrack(positionMs);
+}
+
+
+QString& PlayerAPI::getCurrentDeviceId() const
+{
+  return impl->playerState.currentDeviceId();
+}
+
+QString& PlayerAPI::getCurrentDeviceName() const
+{
+  return impl->playerState.curentDeviceName();
 }
 
 // SLOTS

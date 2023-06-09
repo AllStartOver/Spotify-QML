@@ -7,12 +7,12 @@ BaseSetting::BaseSetting() {}
 
 BaseSetting::~BaseSetting() {}
 
-void BaseSetting::saveToFile(const QString &filepath) const
+void BaseSetting::saveToFile() const
 {
-  QFile file(filepath);
+  QFile file(file_path);
 
   // create the directory if it doesn't exist
-  QDir dir = QFileInfo(filepath).absoluteDir();
+  QDir dir = QFileInfo(file_path).absoluteDir();
   if (!dir.exists())
   {
     dir.mkpath(".");

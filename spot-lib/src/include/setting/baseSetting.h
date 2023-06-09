@@ -7,6 +7,7 @@
 #include <QTextStream>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 
 namespace libspot {
 namespace setting {
@@ -17,9 +18,11 @@ struct BaseSetting {
   virtual ~BaseSetting() = 0;
 
   QJsonObject virtual toJson() const = 0;
-  bool virtual readFromFile(const QString& filePath) = 0;
+  bool virtual readFromFile() = 0;
 
-  void saveToFile(const QString& filePath) const;
+  void saveToFile() const;
+
+  QString file_path;
 };
 
 }}

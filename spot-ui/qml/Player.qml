@@ -9,20 +9,29 @@ Rectangle {
   anchors.left: parent.left
   color: Style.colorSpotifyBlack
 
-  RoundButton {
+  Image {
     id: button_play_pause
-    radius: 75
+    height: 50
+    width: height
     anchors.verticalCenter: parent.verticalCenter
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.verticalCenterOffset: -25
 
-    background: Image {
-      id: button_play_pause_image
-      source: "qrc:/spotify-qml/imports/Images/play2.svg"
+    source: "qrc:/spotify-qml/imports/Images/play2.svg"
+
+    MouseArea {
+      id: button_play_pause_mouse_area
+      anchors.fill: parent
+      hoverEnabled: true
+      onClicked: { 
+        console.log("button_play_pause clicked");
+        playerAPI.pausePlayback();
+      }
+
     }
   }
 
-  Button {
+  Image {
     id: trackPrev
     width: 30
     height: width
@@ -31,13 +40,20 @@ Rectangle {
     anchors.rightMargin: 30
     anchors.verticalCenter: button_play_pause.verticalCenter
 
-    background: Image {
-      id: trackPrevImage
-      source: "qrc:/spotify-qml/imports/Images/trackPrev.svg"
+    source: trackPrevMouseArea.containsMouse ? "qrc:/spotify-qml/imports/Images/trackPrevHover.svg" : "qrc:/spotify-qml/imports/Images/trackPrev.svg"
+
+    MouseArea {
+      id: trackPrevMouseArea
+      anchors.fill: parent
+      hoverEnabled: true
+      onClicked: { 
+        console.log("trackPrev clicked");
+        playerAPI.prevTrack();
+      }
     }
   }
 
-  Button {
+  Image {
     id: trackNext
     width: 30
     height: width
@@ -46,9 +62,15 @@ Rectangle {
     anchors.leftMargin: 30
     anchors.verticalCenter: button_play_pause.verticalCenter
 
-    background: Image {
-      id: trackNextImage
-      source: "qrc:/spotify-qml/imports/Images/trackNext.svg"
+    source: trackNextMouseArea.containsMouse ? "qrc:/spotify-qml/imports/Images/trackNextHover.svg" : "qrc:/spotify-qml/imports/Images/trackNext.svg"
+    MouseArea {
+      id: trackNextMouseArea
+      anchors.fill: parent
+      hoverEnabled: true
+      onClicked: { 
+        console.log("trackNext clicked");
+        playerAPI.nextTrack();
+      }
     }
   }
 
@@ -86,7 +108,7 @@ Rectangle {
     id: audioProgress
     width: parent.width / 5 * 2
     height: 5
-    value: 0.5
+    value: 0
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.verticalCenter: parent.verticalCenter
     anchors.verticalCenterOffset: 25
@@ -101,6 +123,20 @@ Rectangle {
       radius: 2
     }
 
+    Timer {
+      id: progressBarTimer
+      interval: 1000
+      repeat: true
+      running: false
+      onTriggered: {
+        audioProgressIndicator.width += 1000 / playerState.durationMs * parent.width
+        if (audioProgressIndicator.width >= audioProgress.width) {
+          audioProgressIndicator.width = 0
+          progressBarTimer.stop()
+        }
+      }
+    }
+
     MouseArea {
       id: audioProgressMouseArea
       width: parent.width
@@ -110,9 +146,24 @@ Rectangle {
         horizontalCenter: parent.horizontalCenter
       }
       hoverEnabled: true
-      onEntered: { audioProgressIndicator.color = "green" }
+      onEntered: { audioProgressIndicator.color = Style.colorSpotifyGreen }
       onExited: { audioProgressIndicator.color = "white" }
-      onClicked: { console.log("clicked") }
+      onClicked: { 
+        console.log("audioProgress clicked");
+        var progressTo = Math.round(audioProgressMouseArea.mouseX / audioProgress.width * playerState.durationMs)
+        playerAPI.seekTrack(progressTo)
+        audioProgressIndicator.width = audioProgressMouseArea.mouseX
+      }
+    }
+
+    Connections {
+      target: playerState
+      onProgressMsChanged: {
+        audioProgressIndicator.width = playerState.progressMs / playerState.durationMs * audioProgress.width
+        progressBarTimer.start()
+      }
+      onDurationMsChanged: {
+      }
     }
   }
 }

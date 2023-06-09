@@ -2,6 +2,9 @@
 #include <QObject>
 #include <QDebug>
 #include <QScopedPointer>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 namespace libspot {
 namespace network {
 namespace API {
