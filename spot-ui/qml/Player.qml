@@ -1,33 +1,52 @@
 import QtQuick.Controls
 import QtQuick
+import Views 1.0
 import Styles 1.0
 
 Rectangle {
   width: parent.width
-  height: 150
+  height: 100
   anchors.bottom: parent.bottom
   anchors.left: parent.left
   color: Style.colorSpotifyBlack
 
   Image {
+    property bool isPlaying: true
     id: button_play_pause
     height: 50
     width: height
     anchors.verticalCenter: parent.verticalCenter
     anchors.horizontalCenter: parent.horizontalCenter
-    anchors.verticalCenterOffset: -25
+    anchors.verticalCenterOffset: -15
 
-    source: "qrc:/spotify-qml/imports/Images/play2.svg"
+    source: isPlaying ? "qrc:/spotify-qml/imports/Images/pause.svg" : "qrc:/spotify-qml/imports/Images/play.svg"
 
     MouseArea {
       id: button_play_pause_mouse_area
       anchors.fill: parent
       hoverEnabled: true
       onClicked: { 
-        console.log("button_play_pause clicked");
-        playerAPI.pausePlayback();
+        if (parent.isPlaying) {
+          console.log("button_pause clicked");
+          playerAPI.pausePlayback();
+          progressBarTimer.stop();
+          parent.isPlaying = false;
+        } else {
+          console.log("button_play clicked");
+          playerAPI.resumePlayback();
+          progressBarTimer.start();
+          parent.isPlaying = true;
+        }
       }
+    }
 
+    Connections {
+      target: playerState
+      function onSignalPlayerStateUpdated() {
+        // Update the Play/Pause Button;
+        button_play_pause.isPlaying = playerState.isPlaying;
+        if (playerState.isPlaying) progressBarTimer.start();
+      } 
     }
   }
 
@@ -74,44 +93,84 @@ Rectangle {
     }
   }
 
-  Button {
+  Image {
+    property bool isShuffle: false
     id: buttonShuffle
-    width: 30
+    width: 25
     height: width
 
     anchors.right: trackPrev.left
     anchors.rightMargin: 30
     anchors.verticalCenter: button_play_pause.verticalCenter
 
-    background: Image {
-      id: buttonShuffleImage
-      source: "qrc:/spotify-qml/imports/Images/shuffle.svg"
+    source: isShuffle ? "qrc:/spotify-qml/imports/Images/shuffleEnabled.svg" : "qrc:/spotify-qml/imports/Images/shuffle.svg"
+
+    MouseArea {
+      id: buttonShuffleMouseArea
+      anchors.fill: parent
+      hoverEnabled: true
+      onClicked: { 
+        console.log("buttonShuffle clicked");
+        playerAPI.toggleShuffle(!buttonShuffle.isShuffle);
+        parent.isShuffle = !parent.isShuffle;
+      }
+    }
+
+    Connections {
+      target: playerState
+      function onSignalPlayerStateUpdated() {
+        buttonShuffle.isShuffle = playerState.isShuffling;
+      }
     }
   }
 
-  Button {
+  Image {
+    property string loopMode: "off"
     id: buttonLoop
-    width: 30
+    width: 25
     height: width
     anchors.left: trackNext.right
     anchors.leftMargin: 30
     anchors.verticalCenter: button_play_pause.verticalCenter
 
-    background: Image {
-      id: buttonLoopImage
-      source: "qrc:/spotify-qml/imports/Images/loop.svg"
+    source: loopMode == "off" ? "qrc:/spotify-qml/imports/Images/loopOff.svg" : loopMode == "context" ? "qrc:/spotify-qml/imports/Images/loopContext.svg" : "qrc:/spotify-qml/imports/Images/loopTrack.svg"
+
+    MouseArea {
+      id: buttonLoopMouseArea
+      anchors.fill: parent
+      hoverEnabled: true
+      onClicked: { 
+        console.log("buttonLoop clicked");
+        if (parent.loopMode == "off") {
+          parent.loopMode = "context";
+          playerAPI.setLoopMode("context");
+        } else if (parent.loopMode == "context") {
+          parent.loopMode = "track";
+          playerAPI.setLoopMode("track");
+        } else if (parent.loopMode == "track") {
+          parent.loopMode = "off";
+          playerAPI.setLoopMode("off");
+        }
+      }
+    }
+
+    Connections {
+      target: playerState
+      function onSignalPlayerStateUpdated() {
+        buttonLoop.loopMode = playerState.loopMode;
+      }
     }
   }
 
   ProgressBar {
-    property real progress: 0.5
+    property int progressTime: 0
     id: audioProgress
     width: parent.width / 5 * 2
     height: 5
     value: 0
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: 25
+    anchors.verticalCenterOffset: 20
 
     background: Rectangle {
       radius: 2
@@ -119,7 +178,7 @@ Rectangle {
     }
     contentItem: Rectangle {
       id: audioProgressIndicator
-      width: audioProgress.width * audioProgress.progress
+      width: 0
       radius: 2
     }
 
@@ -129,10 +188,13 @@ Rectangle {
       repeat: true
       running: false
       onTriggered: {
-        audioProgressIndicator.width += 1000 / playerState.durationMs * parent.width
-        if (audioProgressIndicator.width >= audioProgress.width) {
-          audioProgressIndicator.width = 0
-          progressBarTimer.stop()
+        audioProgressIndicator.width += 1000 / playerState.durationMs * parent.width;
+        audioProgress.progressTime += 1;
+        // Update the PlayerState;
+        if (audioProgressIndicator.width > audioProgress.width) {
+          audioProgressIndicator.width = 0;
+          progressBarTimer.stop();
+          buttonLoop.loopMode === "track" ? playerAPI.updatePlayerState(false) : playerAPI.updatePlayerState(true) 
         }
       }
     }
@@ -151,6 +213,7 @@ Rectangle {
       onClicked: { 
         console.log("audioProgress clicked");
         var progressTo = Math.round(audioProgressMouseArea.mouseX / audioProgress.width * playerState.durationMs)
+        audioProgress.progressTime = Math.round(progressTo / 1000)
         playerAPI.seekTrack(progressTo)
         audioProgressIndicator.width = audioProgressMouseArea.mouseX
       }
@@ -158,12 +221,32 @@ Rectangle {
 
     Connections {
       target: playerState
-      onProgressMsChanged: {
+      function onSignalPlayerStateUpdated() {
+        // Update the Progress;
+        audioProgress.progressTime = Math.round(playerState.progressMs / 1000) - 1
         audioProgressIndicator.width = playerState.progressMs / playerState.durationMs * audioProgress.width
-        progressBarTimer.start()
+        // Update the Duration;
+        audioDurationText.text = Utils.formatTime(Math.round(playerState.durationMs / 1000))
       }
-      onDurationMsChanged: {
-      }
+    }
+
+    Text {
+      id: audioProgressText
+      anchors.right: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.rightMargin: 10
+      font.pixelSize: 12
+      color: "lightgray"
+      text: Utils.formatTime(parent.progressTime)
+    }
+
+    Text {
+      id: audioDurationText
+      anchors.left: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.leftMargin: 10
+      font.pixelSize: 12
+      color: "lightgray"
     }
   }
 }

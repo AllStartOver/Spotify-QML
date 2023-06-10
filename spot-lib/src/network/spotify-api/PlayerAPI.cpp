@@ -4,6 +4,7 @@ namespace libspot {
 namespace network {
 namespace API {
 
+using namespace libspot::data;
 class PlayerAPI::Implementation
 {
 public:
@@ -12,15 +13,16 @@ public:
       access_token(_access_token)
   {
     manager = new QNetworkAccessManager(parent);
-    requestPlayerState();
+    QObject::connect(&playerState, &PlayerState::signalPlayerStateRemainsSame, parent, &PlayerAPI::updatePlayerState);
+    requestPlayerState(true);
   }
 
-  void requestPlayerState()
+  void requestPlayerState(bool forceTrackUpdate)
   {
     QString endpoint = "";
     QNetworkRequest request = createBaseRequest(endpoint);
     QNetworkReply *reply = manager->get(request);
-    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onGetPlayerState(reply); });
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, forceTrackUpdate = forceTrackUpdate, this]() { onGetPlayerState(reply, forceTrackUpdate); });
   }
 
   void pausePlayback()
@@ -64,9 +66,27 @@ public:
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onSeekTrack(reply); });
   }
 
+  void toggleShuffle(bool state)
+  {
+    QString endpoint = "/shuffle?state=" + QString(state ? "true" : "false");
+    QNetworkRequest request = createBaseRequest(endpoint);
+
+    QNetworkReply *reply = manager->put(request, QByteArray());
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onToggleShuffle(reply); });
+  }
+
+  void setLoopMode(QString mode)
+  {
+    QString endpoint = "/repeat?state=" + mode;
+    QNetworkRequest request = createBaseRequest(endpoint);
+
+    QNetworkReply *reply = manager->put(request, QByteArray());
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onSetLoopMode(reply); });
+  }
+
   // SLOTS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-  void onGetPlayerState(QNetworkReply* reply)
+  void onGetPlayerState(QNetworkReply* reply, bool forceTrackUpdate)
   {
     if(reply->error() != QNetworkReply::NoError) 
     {
@@ -84,7 +104,7 @@ public:
       return;
     }
     QJsonObject obj = doc.object();
-    playerState.feed_json(obj);
+    forceTrackUpdate ? playerState.updateFullStates(obj) : playerState.updateBasicStates(obj);
     reply->deleteLater();
     emit parent->signalGetPlayerStateFinished();
   }
@@ -102,16 +122,30 @@ public:
   void onPrevTrack(QNetworkReply* reply)
   {
     parent->log(reply, "Previous track");
+    requestPlayerState(true);
   }
 
   void onNextTrack(QNetworkReply* reply)
   {
     parent->log(reply, "Next track");
+    requestPlayerState(true);
   }
 
   void onSeekTrack(QNetworkReply* reply)
   {
     parent->log(reply, "Seek track");
+  }
+
+  void onToggleShuffle(QNetworkReply* reply)
+  {
+    parent->log(reply, "Toggle shuffle");
+    requestPlayerState(false);
+  }
+
+  void onSetLoopMode(QNetworkReply* reply)
+  {
+    parent->log(reply, "Set loop mode");
+    requestPlayerState(false);
   }
 
   // Helper functions
@@ -151,6 +185,11 @@ libspot::data::PlayerState& PlayerAPI::getPlayerState()
 
 // Q_INVOKABLE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+void PlayerAPI::updatePlayerState(bool forceTrackUpdate)
+{
+  return impl->requestPlayerState(forceTrackUpdate);
+}
+
 void PlayerAPI::pausePlayback()
 {
   return impl->pausePlayback();
@@ -176,6 +215,16 @@ void PlayerAPI::seekTrack(int positionMs)
   return impl->seekTrack(positionMs);
 }
 
+void PlayerAPI::toggleShuffle(bool state)
+{
+  return impl->toggleShuffle(state);
+}
+
+void PlayerAPI::setLoopMode(QString mode)
+{
+  return impl->setLoopMode(mode);
+}
+
 
 QString& PlayerAPI::getCurrentDeviceId() const
 {
@@ -187,25 +236,5 @@ QString& PlayerAPI::getCurrentDeviceName() const
   return impl->playerState.curentDeviceName();
 }
 
-// SLOTS
-void PlayerAPI::onPausePlayback(QNetworkReply* reply)
-{
-  return impl->onPausePlayback(reply);
-}
-
-void PlayerAPI::onResumePlayback(QNetworkReply* reply)
-{
-  return impl->onResumePlayback(reply);
-}
-
-void PlayerAPI::onPrevTrack(QNetworkReply* reply)
-{
-  return impl->onPrevTrack(reply);
-}
-
-void PlayerAPI::onNextTrack(QNetworkReply* reply)
-{
-  return impl->onNextTrack(reply);
-}
 
 }}}

@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "array": "cpp",
+    "format": "cpp",
+    "istream": "cpp",
+    "tuple": "cpp",
+    "variant": "cpp",
+    "xutility": "cpp"
+  }
+}

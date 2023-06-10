@@ -10,13 +10,17 @@ namespace data {
 class PlayerState : public QObject
 {
   Q_OBJECT
-  Q_PROPERTY(int progressMs READ progressMs WRITE setProgressMs NOTIFY progressMsChanged)
-  Q_PROPERTY(int durationMs READ durationMs NOTIFY durationMsChanged)
+  Q_PROPERTY(int progressMs READ progressMs)
+  Q_PROPERTY(int durationMs READ durationMs)
+  Q_PROPERTY(bool isPlaying READ isPlaying)
+  Q_PROPERTY(bool isShuffling READ isShuffling)
+  Q_PROPERTY(QString loopMode READ loopMode)
 public:
   PlayerState();
   ~PlayerState();
 
-  void feed_json(QJsonObject json);
+  void updateBasicStates(QJsonObject json);
+  void updateFullStates(QJsonObject json);
 
   // Q_READ
   QString& currentDeviceId() const;
@@ -28,12 +32,11 @@ public:
 
   bool isPlaying() const;
   bool isShuffling() const;
-  // Q_WRITE
-  void setProgressMs(int progressMs);
+  QString loopMode() const;
 
 signals:
-  void progressMsChanged(int progressMs);
-  void durationMsChanged(int durationMs);
+  void signalPlayerStateUpdated();
+  void signalPlayerStateRemainsSame(bool forceTrackUpdate);
 
 private:
   class Implementation;

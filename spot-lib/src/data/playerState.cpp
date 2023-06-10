@@ -10,23 +10,47 @@ public:
     : parent(_parent)
   {}
 
+  void updateBasicStates(QJsonObject json)
+  {
+    qDebug() << "updateBasicStates() called";
+    feed_json(json);
+  }
+
+  void updateFullStates(QJsonObject json)
+  {
+    qDebug() << "updateFullStates() called";
+    if (json["item"].toObject()["name"].toString() == trackName)
+    {
+      emit parent->signalPlayerStateRemainsSame(true);
+      return;
+    }
+    feed_json(json);
+  }
+
   void feed_json(QJsonObject json)
   {
+
+    // Track Info
+    trackName = json["item"].toObject()["name"].toString();
+
+    // Devices
     currentDeviceId = json["device"].toObject()["id"].toString();
     currentDeviceName = json["device"].toObject()["name"].toString();
 
     volumePercent = json["device"].toObject()["volume_percent"].toInt();
 
+    // Progress and Duration
     progressMs = json["progress_ms"].toInt();
     durationMs = json["item"].toObject()["duration_ms"].toInt();
-    emit parent->durationMsChanged(durationMs);
-    emit parent->progressMsChanged(progressMs);
 
+    // Basic States
     isPlaying = json["is_playing"].toBool();
     isShuffling = json["shuffle_state"].toBool();
 
-    qDebug() << "PlayerState::feed_json() finished";
+    loopMode = json["repeat_state"].toString();
 
+    qDebug() << "PlayerState::feed_json() finished";
+    emit parent->signalPlayerStateUpdated();
   }
 
   PlayerState* parent;
@@ -34,12 +58,15 @@ public:
   QString currentDeviceId;
   QString currentDeviceName;
 
+  QString trackName;
+
   int volumePercent;
   int progressMs;
   int durationMs;
 
   bool isPlaying;
   bool isShuffling;
+  QString loopMode;
 };
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -53,10 +80,16 @@ PlayerState::PlayerState()
 
 PlayerState::~PlayerState() {}
 
-void PlayerState::feed_json(QJsonObject json)
+void PlayerState::updateBasicStates(QJsonObject json)
 {
-  impl->feed_json(json);
+  impl->updateBasicStates(json);
 }
+
+void PlayerState::updateFullStates(QJsonObject json)
+{
+  impl->updateFullStates(json);
+}
+
 
 // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -95,12 +128,11 @@ bool PlayerState::isShuffling() const
   return impl->isShuffling;
 }
 
-// Q_WRITE @@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-void PlayerState::setProgressMs(int progressMs)
+QString PlayerState::loopMode() const
 {
-  impl->progressMs = progressMs;
-  emit progressMsChanged(progressMs);
+  return impl->loopMode;
 }
+
+// Q_WRITE @@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 }}

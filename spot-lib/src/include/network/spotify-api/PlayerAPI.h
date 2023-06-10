@@ -17,11 +17,14 @@ public:
   PlayerAPI(QString &access_token);
   ~PlayerAPI() override;
 
+  Q_INVOKABLE void updatePlayerState(bool forceTrackUpdate);
   Q_INVOKABLE void pausePlayback();
   Q_INVOKABLE void resumePlayback();
   Q_INVOKABLE void prevTrack();
   Q_INVOKABLE void nextTrack();
   Q_INVOKABLE void seekTrack(int positionMs);
+  Q_INVOKABLE void toggleShuffle(bool state);
+  Q_INVOKABLE void setLoopMode(QString mode);
 
   libspot::data::PlayerState& getPlayerState();
 
@@ -29,13 +32,11 @@ public:
   QString& getCurrentDeviceName() const;
 
 signals:
+  void signalPlayerStateUpdated();
   void signalGetPlayerStateFinished();
 
 public slots:
-  void onPausePlayback(QNetworkReply* reply);
-  void onResumePlayback(QNetworkReply* reply);
-  void onPrevTrack(QNetworkReply* reply);
-  void onNextTrack(QNetworkReply* reply);
+
 private:
   class Implementation;
   QScopedPointer<Implementation> impl;
