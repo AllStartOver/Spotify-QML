@@ -263,7 +263,8 @@ Rectangle {
       target: playerState
       function onSignalRequestImageFinished(path) {
         console.log(path);
-        albumCover.source = "file://" + executablePath + "/" + path;
+        console.log(executablePath);
+        albumCover.source = "file:///" + executablePath + "/" + path;
         console.log(albumCover.source)
       }
     }
@@ -300,38 +301,91 @@ Rectangle {
     } 
   }
 
-  Text {
-    id: trackName
+  Flickable {
+    id: trackNameFlick
+    anchors.left: albumCover.right
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.verticalCenterOffset: -10
+    anchors.leftMargin: 10
+    width: 200
+    height: 15
+    contentWidth: trackName.contentWidth
+    clip: true
+    interactive: false
+
+    Text {
+      id: trackName
+      width: parent.width
+      font.pixelSize: 12
+      font.bold: true 
+      color: "white"
+
+
+      Connections {
+        target: playerState
+        function onSignalPlayerStateUpdated() {
+          trackNameAnimation.stop()
+          trackName.text = playerState.trackName
+          if(trackName.contentWidth > trackNameFlick.width) {
+            console.log("Roll it")
+            trackNameAnimation.start()
+          }
+        }
+      }
+    }
+
+    SequentialAnimation {
+      id: trackNameAnimation
+      loops: Animation.Infinite
+
+      PauseAnimation {
+        duration: 1500
+      }
+      PropertyAnimation {
+        target: trackNameFlick
+        property: "contentX"
+        to: trackNameFlick.contentWidth - trackNameFlick.width
+        duration: 3000
+      }
+      PauseAnimation {
+        duration: 1500
+      } 
+      PropertyAnimation {
+        target: trackNameFlick
+        property: "contentX"
+        to: 0
+        duration: 3000
+      }
+    }
+  }
+
+  Rectangle {
+    height: trackNameFlick.height
+    width: trackNameFlick.width
     anchors.left: albumCover.right
     anchors.verticalCenter: parent.verticalCenter
     anchors.verticalCenterOffset: -10
     anchors.leftMargin: 10
 
-    width: 50
-    font.pixelSize: 14
-    font.bold: true 
-    color: "white"
+    visible: trackNameFlick.contentWidth > trackNameFlick.width
 
-    NumberAnimation {
-      id: trackNameScrollAnimation
-      target: trackName
-      property: "x"
-      from: 0
-      to: -(trackName.contentWidth - trackName.width)
-      easing.type: Easing.Linear
-      duration: 1000
-      loops: Animation.Infinite
-    }
-
-
-    Connections {
-      target: playerState
-      function onSignalPlayerStateUpdated() {
-        trackName.text = playerState.trackName
-        if (trackName.contentWidth > trackName.width) {
-          console.log("rollit")
-          trackNameScrollAnimation.start()
-        }
+    gradient: Gradient {
+      orientation: Gradient.Horizontal
+      GradientStop {
+        position: 0.0
+        color: "black"
+      }
+      GradientStop {
+        position: 0.1
+        color: "transparent"
+      }
+      GradientStop {
+        position: 0.9
+        color: "transparent"
+      }
+      GradientStop {
+        position: 1.0
+        color: "black"
       }
     }
   }
