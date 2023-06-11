@@ -1,4 +1,5 @@
 import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuick
 import Views 1.0
 import Styles 1.0
@@ -247,6 +248,91 @@ Rectangle {
       anchors.leftMargin: 10
       font.pixelSize: 12
       color: "lightgray"
+    }
+  }
+
+  Image {
+    id: albumCover
+    width: 70
+    height: width
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter 
+    anchors.leftMargin: 15
+
+    Connections {
+      target: playerState
+      function onSignalRequestImageFinished(path) {
+        console.log(path);
+        albumCover.source = "file://" + executablePath + "/" + path;
+        console.log(albumCover.source)
+      }
+    }
+  }
+
+  ListView {
+    id: artistList
+    height: 15
+    width: 200
+    anchors.left: albumCover.right
+    anchors.leftMargin: 10
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.verticalCenterOffset: 10
+    clip: true
+
+    model: playerState.artists
+
+    delegate: Row {
+      anchors.fill: parent
+      Repeater {
+        model: artistList.count
+        Text {
+          text: index === (artistList.count-1) ? artistList.model[index].name : artistList.model[index].name + ", "
+          color: "lightgray"
+          font.pixelSize: 12
+        }
+      }
+    }
+    Connections {
+      target: playerState
+      function onSignalPlayerStateUpdated() {
+        artistList.model = playerState.artists
+      }
+    } 
+  }
+
+  Text {
+    id: trackName
+    anchors.left: albumCover.right
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.verticalCenterOffset: -10
+    anchors.leftMargin: 10
+
+    width: 50
+    font.pixelSize: 14
+    font.bold: true 
+    color: "white"
+
+    NumberAnimation {
+      id: trackNameScrollAnimation
+      target: trackName
+      property: "x"
+      from: 0
+      to: -(trackName.contentWidth - trackName.width)
+      easing.type: Easing.Linear
+      duration: 1000
+      loops: Animation.Infinite
+    }
+
+
+    Connections {
+      target: playerState
+      function onSignalPlayerStateUpdated() {
+        trackName.text = playerState.trackName
+        if (trackName.contentWidth > trackName.width) {
+          console.log("rollit")
+          trackNameScrollAnimation.start()
+        }
+      }
     }
   }
 }

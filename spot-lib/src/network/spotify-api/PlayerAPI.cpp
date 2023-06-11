@@ -14,6 +14,7 @@ public:
   {
     manager = new QNetworkAccessManager(parent);
     QObject::connect(&playerState, &PlayerState::signalPlayerStateRemainsSame, parent, &PlayerAPI::updatePlayerState);
+    QObject::connect(&playerState, &PlayerState::signalRequestImage, parent, [this](QString url) { requestImage(url); });
     requestPlayerState(true);
   }
 
@@ -23,6 +24,14 @@ public:
     QNetworkRequest request = createBaseRequest(endpoint);
     QNetworkReply *reply = manager->get(request);
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, forceTrackUpdate = forceTrackUpdate, this]() { onGetPlayerState(reply, forceTrackUpdate); });
+  }
+
+  void requestImage(QString url)
+  {
+    QNetworkRequest request(url);
+    QNetworkReply *reply = manager->get(request);
+    QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, fileName = fileName, this]() { onRequestImage(reply, fileName); });
   }
 
   void pausePlayback()
@@ -88,6 +97,8 @@ public:
 
   void onGetPlayerState(QNetworkReply* reply, bool forceTrackUpdate)
   {
+    int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "Status: " << status;
     if(reply->error() != QNetworkReply::NoError) 
     {
       qDebug() << "Error: " << reply->errorString();
@@ -107,6 +118,35 @@ public:
     forceTrackUpdate ? playerState.updateFullStates(obj) : playerState.updateBasicStates(obj);
     reply->deleteLater();
     emit parent->signalGetPlayerStateFinished();
+  }
+
+  void onRequestImage(QNetworkReply* reply, QString fileName)
+  {
+    int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "Status: " << status;
+    if(reply->error() != QNetworkReply::NoError) 
+    {
+      qDebug() << "Error: " << reply->errorString();
+      reply->deleteLater();
+      return;
+    }
+    // Save the image
+    QByteArray data = reply->readAll();
+    QFile file(fileName);
+    QDir dir;
+    if (!dir.exists("cache_imgs")) {
+      dir.mkpath("cache_imgs");
+    }
+    if (file.open(QIODevice::WriteOnly)) {
+      file.write(data);
+      file.close();
+    }
+    else {
+      qDebug() << "Failed to open file";
+    }
+
+    emit playerState.signalRequestImageFinished(fileName);
+    reply->deleteLater();
   }
 
   void onPausePlayback(QNetworkReply* reply)

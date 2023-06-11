@@ -49,6 +49,17 @@ public:
 
     loopMode = json["repeat_state"].toString();
 
+    // Update the Artists
+    artists.clear();
+    for(auto artist : json["item"].toObject()["artists"].toArray())
+    {
+      artists.append(new Artist(parent, artist.toObject()));
+    }
+
+    // Update the Image
+    imageURL = json["item"].toObject()["album"].toObject()["images"].toArray()[0].toObject()["url"].toString();
+    emit parent->signalRequestImage(imageURL);
+
     qDebug() << "PlayerState::feed_json() finished";
     emit parent->signalPlayerStateUpdated();
   }
@@ -58,8 +69,6 @@ public:
   QString currentDeviceId;
   QString currentDeviceName;
 
-  QString trackName;
-
   int volumePercent;
   int progressMs;
   int durationMs;
@@ -67,6 +76,11 @@ public:
   bool isPlaying;
   bool isShuffling;
   QString loopMode;
+
+  QString trackName;
+  QString imageURL;
+
+  QList<Artist*> artists;
 };
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -131,6 +145,17 @@ bool PlayerState::isShuffling() const
 QString PlayerState::loopMode() const
 {
   return impl->loopMode;
+}
+
+QString PlayerState::trackName() const
+{
+  return impl->trackName;
+}
+
+
+QQmlListProperty<Artist> PlayerState::artists()
+{
+  return QQmlListProperty<Artist>(this, &impl->artists);
 }
 
 // Q_WRITE @@@@@@@@@@@@@@@@@@@@@@@@@@@@

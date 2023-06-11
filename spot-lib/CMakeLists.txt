@@ -10,9 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(WIN32)
     set(CMAKE_PREFIX_PATH "C:/Qt/6.5.0/msvc2019_64/lib/cmake" "C:/libs/lib/cmake")
-    find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network)
+    find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Qml Gui)
 elseif(APPLE)
-    find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network)
+    find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Qml Gui)
 endif()
 
 include_directories(
@@ -52,6 +52,8 @@ add_library(spotify-qml STATIC
 target_link_libraries(spotify-qml 
     Qt6::Core
     Qt6::Network
+    Qt6::Qml
+    Qt6::Gui
 )
 
 target_compile_definitions(spotify-qml PRIVATE LIBSPOTIFY_LIBRARY)

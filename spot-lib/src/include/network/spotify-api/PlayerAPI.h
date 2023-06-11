@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QFile>
+#include <QDir>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>

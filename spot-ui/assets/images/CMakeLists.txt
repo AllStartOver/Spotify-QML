@@ -30,6 +30,7 @@ set(images
   "shuffleEnabled.svg"
   "heartGray.svg"
   "heartGreen.svg"
+  "image_test.jpeg"
 )
 
 qt_add_qml_module(ImagesLib

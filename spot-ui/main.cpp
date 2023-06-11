@@ -10,6 +10,8 @@
 #include "network/spotify-api/PlayerAPI.h"
 #include "setting/account.h"
 
+#include "data/artist.h"
+
 using namespace libspot::controllers;
 using namespace libspot::setting;
 using namespace libspot::network::API;
@@ -49,8 +51,12 @@ int main(int argc, char *argv[])
 
   qmlRegisterType<PlayerAPI>("libspot", 1, 0, "PlayerAPI");
 	qmlRegisterType<PlayerState>("libspot", 1, 0, "PlayerState");
+	qmlRegisterType<Artist>("libspot", 1, 0, "Artist");
 
   // register types
+	QString executablePath = QCoreApplication::applicationDirPath();
+	qDebug() << executablePath;
+	engine.rootContext()->setContextProperty("executablePath", executablePath);
   engine.rootContext()->setContextProperty("playerAPI", &playerAPI);
 	engine.rootContext()->setContextProperty("playerState", &playerAPI.getPlayerState());
 	// load qml
