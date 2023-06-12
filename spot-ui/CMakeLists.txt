@@ -37,6 +37,7 @@ qt_add_executable(spot-ui
 set(qml_files 
     "qml/MainWindow.qml"
     "qml/Player.qml"
+    "qml/BoundFadeEffect.qml"
     "qml/Utils.js"
 )
 

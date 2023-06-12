@@ -209,7 +209,7 @@ public:
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-PlayerAPI::PlayerAPI(QString &access_token)
+PlayerAPI::PlayerAPI(QObject *parent, QString &access_token)
 {
   impl.reset(new Implementation(this, access_token));
 }

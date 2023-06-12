@@ -1,18 +1,24 @@
 #pragma once
 
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
+#include <QObject>
 #include <QScopedPointer>
+#include "network/spotify-api/PlayListsAPI.h"
+#include "network/spotify-api/PlayerAPI.h"
 
+using namespace libspot::network::API;
 namespace libspot {
-namespace controller {
+namespace controllers {
 
-class APIController : public QNetworkAccessManager
+class APIController : public QObject
 {
   Q_OBJECT
 public:
-  APIController(QObject* parent = 0);
+  explicit APIController(QObject *parent, QString &access_token);
   ~APIController();
+
+  // API GETER
+  PlayerAPI* getPlayerAPI();
+  PlayListsAPI* getPlayListsAPI();
 
 private:
   class Implementation;

@@ -8,6 +8,7 @@
 #include "controllers/APIController.h"
 
 #include "network/spotify-api/PlayerAPI.h"
+#include "network/spotify-api/PlayListsAPI.h"
 #include "setting/account.h"
 
 #include "data/artist.h"
@@ -47,18 +48,18 @@ int main(int argc, char *argv[])
 	}
 
   QString access_token = authController.getAccount()->access_token;
-  PlayerAPI playerAPI(access_token);
+	APIController apiController(nullptr, access_token);
 
   qmlRegisterType<PlayerAPI>("libspot", 1, 0, "PlayerAPI");
+	qmlRegisterType<PlayListsAPI>("libspot", 1, 0, "PlayListsAPI");
 	qmlRegisterType<PlayerState>("libspot", 1, 0, "PlayerState");
 	qmlRegisterType<Artist>("libspot", 1, 0, "Artist");
 
   // register types
 	QString executablePath = QCoreApplication::applicationDirPath();
-	qDebug() << executablePath;
 	engine.rootContext()->setContextProperty("executablePath", executablePath);
-  engine.rootContext()->setContextProperty("playerAPI", &playerAPI);
-	engine.rootContext()->setContextProperty("playerState", &playerAPI.getPlayerState());
+  engine.rootContext()->setContextProperty("playerAPI", apiController.getPlayerAPI());
+	engine.rootContext()->setContextProperty("playerState", &apiController.getPlayerAPI()->getPlayerState());
 	// load qml
   engine.addImportPath(":/spotify-qml/imports");
   const QUrl url(u"qrc:/spotify-qml/imports/Views/qml/MainWindow.qml"_qs);

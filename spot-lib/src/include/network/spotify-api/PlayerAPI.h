@@ -16,7 +16,7 @@ class PlayerAPI : public BaseAPI
 {
   Q_OBJECT
 public:
-  PlayerAPI(QString &access_token);
+  explicit PlayerAPI(QObject *parent, QString &access_token);
   ~PlayerAPI() override;
 
   Q_INVOKABLE void updatePlayerState(bool forceTrackUpdate);
@@ -36,8 +36,6 @@ public:
 signals:
   void signalPlayerStateUpdated();
   void signalGetPlayerStateFinished();
-
-public slots:
 
 private:
   class Implementation;

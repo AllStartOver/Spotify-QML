@@ -9,7 +9,9 @@ Rectangle {
   height: 100
   anchors.bottom: parent.bottom
   anchors.left: parent.left
-  color: Style.colorSpotifyBlack
+  color: Style.colorSpotifyDarkGray
+  border.color: "gray"
+  border.width: 0.5
 
   Image {
     property bool isPlaying: true
@@ -262,16 +264,13 @@ Rectangle {
     Connections {
       target: playerState
       function onSignalRequestImageFinished(path) {
-        console.log(path);
-        console.log(executablePath);
         albumCover.source = "file:///" + executablePath + "/" + path;
-        console.log(albumCover.source)
       }
     }
   }
 
-  ListView {
-    id: artistList
+  Flickable {
+    id: artistListFlick
     height: 15
     width: 200
     anchors.left: albumCover.right
@@ -279,26 +278,91 @@ Rectangle {
     anchors.verticalCenter: parent.verticalCenter
     anchors.verticalCenterOffset: 10
     clip: true
+    interactive: false
+    contentWidth: artistList.contentWidth
 
-    model: playerState.artists
+    ListView {
+      id: artistList
+      height: parent.height
+      width: parent.width
+      orientation: ListView.Horizontal
 
-    delegate: Row {
-      anchors.fill: parent
-      Repeater {
-        model: artistList.count
+      model: playerState.artists
+
+      delegate: Row {
         Text {
-          text: index === (artistList.count-1) ? artistList.model[index].name : artistList.model[index].name + ", "
+          id: artistName
+          text: modelData.name
+          color: "lightgray"
+          font.pixelSize: 12
+
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            hoverEnabled: true
+            onEntered: { 
+              parent.color = "white"
+              artistName.font.underline = true
+            }
+            onExited: { 
+              parent.color = "lightgray"
+              artistName.font.underline = false
+            }
+            onClicked: { 
+              console.log(modelData.name);
+            }
+          }
+        }
+        Text {
+          text: index < artistList.count - 1 ? " • " : ""
           color: "lightgray"
           font.pixelSize: 12
         }
       }
+
+      Connections {
+        target: playerState
+        function onSignalPlayerStateUpdated() {
+          artistListAnimation.stop()
+          artistList.model = playerState.artists
+          if (artistList.contentWidth > artistListFlick.width) {
+            artistListAnimation.start()
+          }
+        }
+      } 
     }
-    Connections {
-      target: playerState
-      function onSignalPlayerStateUpdated() {
-        artistList.model = playerState.artists
+    SequentialAnimation {
+      id: artistListAnimation
+      loops: Animation.Infinite
+
+      PauseAnimation {
+        duration: 1500
       }
-    } 
+
+      PropertyAnimation {
+        target: artistListFlick
+        property: "contentX"
+        to: artistListFlick.contentWidth - artistListFlick.width
+        duration: 5000
+      }
+
+      PauseAnimation {
+        duration: 1500
+      }
+
+      PropertyAnimation {
+        target: artistListFlick
+        property: "contentX"
+        to: 0
+        duration: 5000
+      }
+    }
+  }
+
+  BoundFadeEffect {
+    boundaryColor: Style.colorSpotifyDarkGray
+    anchors.fill: artistListFlick
+    visible: artistListFlick.contentWidth > artistListFlick.width
   }
 
   Flickable {
@@ -327,7 +391,6 @@ Rectangle {
           trackNameAnimation.stop()
           trackName.text = playerState.trackName
           if(trackName.contentWidth > trackNameFlick.width) {
-            console.log("Roll it")
             trackNameAnimation.start()
           }
         }
@@ -359,34 +422,9 @@ Rectangle {
     }
   }
 
-  Rectangle {
-    height: trackNameFlick.height
-    width: trackNameFlick.width
-    anchors.left: albumCover.right
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: -10
-    anchors.leftMargin: 10
-
+  BoundFadeEffect {
+    boundaryColor: Style.colorSpotifyDarkGray
+    anchors.fill: trackNameFlick
     visible: trackNameFlick.contentWidth > trackNameFlick.width
-
-    gradient: Gradient {
-      orientation: Gradient.Horizontal
-      GradientStop {
-        position: 0.0
-        color: "black"
-      }
-      GradientStop {
-        position: 0.1
-        color: "transparent"
-      }
-      GradientStop {
-        position: 0.9
-        color: "transparent"
-      }
-      GradientStop {
-        position: 1.0
-        color: "black"
-      }
-    }
   }
 }
