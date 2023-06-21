@@ -11,7 +11,8 @@ public:
     : parent(_parent) 
   {
     playerAPI = new PlayerAPI(parent, access_token);
-    // playListsAPI = new PlayListsAPI(parent, access_token);
+    playListsAPI = new PlayListsAPI(parent, access_token);
+    playListsAPI->getCurrentUserPlaylists();
   }
   APIController *parent;
   PlayerAPI *playerAPI;

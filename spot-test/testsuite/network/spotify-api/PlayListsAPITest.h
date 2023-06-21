@@ -4,24 +4,24 @@
 #include <QSignalSpy>
 #include <QDebug>
 #include <gtest/gtest.h>
-#include "network/spotify-api/PlayerAPI.h"
+#include "network/spotify-api/PlayListsAPI.h"
+
 #include "setting/account.h"
 
 using namespace libspot::network::API;
-using namespace libspot::setting;
 
-class PlayerAPITest : public testing::Test {
+class PlayListsAPITest : public testing::Test {
 
 protected:
 
   static void SetupTestCase()
   {
-    qDebug() << "TESTING PlayerAPI...";
+    qDebug() << "TESTING PlayListsAPI...";
   }
 
   static void TearDownTestCase()
   {
-    qDebug() << "DONE TESTING PlayerAPI...";
+    qDebug() << "DONE TESTING PlayListsAPI...";
   }
 
   virtual void SetUp() override
@@ -29,23 +29,22 @@ protected:
     QString rootPath = QCoreApplication::applicationDirPath();
     account = new Account(rootPath);
     account->readFromFile();
-    playerAPI = new PlayerAPI(nullptr, account->access_token);
+    playListsAPI = new PlayListsAPI(nullptr, account->access_token);
   }
 
   virtual void TearDown() override
   {
-    delete playerAPI;
+    delete playListsAPI;
     delete account;
   }
 
-  PlayerAPI *playerAPI;
+  PlayListsAPI *playListsAPI;
   Account *account;
 };
 
-TEST_F(PlayerAPITest, checkGetPlayerState)
+TEST_F(PlayListsAPITest, tempCheck)
 {
-}
-
-TEST_F(PlayerAPITest, checkPausePlayback)
-{
+  playListsAPI->getCurrentUserPlaylists();
+  QSignalSpy spy(playListsAPI, &PlayListsAPI::signalMock);
+  spy.wait(10000);
 }

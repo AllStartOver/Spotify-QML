@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include <QMap>
 #include <QDebug>
 #include <QScopedPointer>
 #include <QJsonArray>
@@ -20,7 +21,6 @@ public:
   {
     int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     if (reply->error() == QNetworkReply::NoError) {
-      qDebug() << QString("%1 successful: %2").arg(endpoint).arg(reply->readAll());
       return true;
     }
     else {

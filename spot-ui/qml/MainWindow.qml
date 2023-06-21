@@ -28,6 +28,29 @@ Window {
     anchors.bottom: player.top
     width: parent.width / 5
     color: Style.colorSpotifyBlack
+
+    ListView {
+      id: playListsListView
+      anchors.fill: parent
+      model: playListsAPI.playLists
+
+      delegate: Text {
+        text: modelData.name
+        color: "white"
+        font.pixelSize: 12
+        font.bold: true
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        width: parent.width
+        height: 30
+      }
+      Connections {
+        target: playListsAPI
+        function onSignalGetCurrentUserPlaylistsFinished() {
+          playListsListView.model = playListsAPI.playLists
+        }
+      }
+    }
   }
 
   Rectangle {

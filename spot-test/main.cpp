@@ -10,6 +10,7 @@
 // #include "testsuite/controllers/AuthControllerTest.h"
 // #include "testsuite/setting/AccountTest.h"
 #include "testsuite/network/spotify-api/PlayerAPITest.h"
+#include "testsuite/network/spotify-api/PlayListsAPITest.h"
 
 // #include "controllers/AuthController.h"
 
@@ -43,6 +44,7 @@ int main(int argc, char **argv)
 		QObject::connect(&authController, &AuthController::authFinished, &loop, &QEventLoop::quit);
 		loop.exec();
 		qDebug() << "Refresh finished";
+		account.saveToFile();
 	}
 
   return RUN_ALL_TESTS();

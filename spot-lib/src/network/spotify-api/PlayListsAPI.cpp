@@ -1,5 +1,6 @@
 #include "network/spotify-api/PlayListsAPI.h"
 
+using namespace libspot::data;
 namespace libspot {
 namespace network {
 namespace API {
@@ -17,7 +18,8 @@ public:
   PlayListsAPI* parent;
   QNetworkAccessManager* manager;
   QString& access_token;
-  QString baseURL = "https://api.spotify.com/v1";
+
+  QMap<QString, PlayList*> playLists;
 
   // MEMBER FUNCTIONS
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -27,6 +29,14 @@ public:
     QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
     QNetworkReply *reply = manager->get(request);
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onGetCurrentUserPlayLists(reply); });
+  }
+
+  void getPlayListTracks(const QString &id)
+  {
+    QString endpoint = "playlists/" + id + "/tracks?limit=100";
+    QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
+    QNetworkReply *reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id,  this]() { onGetPlayListTracks(reply, id); });
   }
   // SLOTS
   // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -39,10 +49,32 @@ public:
     }
     QByteArray data = reply->readAll();
     QJsonObject json = QJsonDocument::fromJson(data).object();
+    playLists.clear();
+    qDebug() << "find " << json["items"].toArray().size() << " playlists";
+    for (auto item : json["items"].toArray())
+    {
+      PlayList *playList = new PlayList(parent, item.toObject());
+      playLists.insert(playList->id(), playList);
+      QObject::connect(playList, &PlayList::signalPlayListRequestTracks, parent, &PlayListsAPI::getPlayListTracks);
+      emit playList->signalPlayListRequestTracks(playList->id());
+    }
+    reply->deleteLater();
+    emit parent->signalGetCurrentUserPlaylistsFinished();
+  }
+
+  void onGetPlayListTracks(QNetworkReply *reply, const QString &id)
+  {
+    if (!parent->log(reply, "GetPlayListItems"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    QByteArray data = reply->readAll();
+    QJsonObject json = QJsonDocument::fromJson(data).object();
+    playLists[id]->fromJson(json);
     reply->deleteLater();
   }
 };
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -55,8 +87,20 @@ PlayListsAPI::~PlayListsAPI()
 {
 }
 
+QQmlListProperty<PlayList> PlayListsAPI::playLists()
+{
+  QList<PlayList*> *values = new QList<PlayList*>(impl->playLists.values());
+  return QQmlListProperty<PlayList>(this, values);
+}
+
 void PlayListsAPI::getCurrentUserPlaylists()
 {
+  return impl->getCurrentUserPlayLists();
+}
+
+void PlayListsAPI::getPlayListTracks(const QString &id)
+{
+  return impl->getPlayListTracks(id);
 }
 
 

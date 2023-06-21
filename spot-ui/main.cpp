@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
 	engine.rootContext()->setContextProperty("executablePath", executablePath);
   engine.rootContext()->setContextProperty("playerAPI", apiController.getPlayerAPI());
 	engine.rootContext()->setContextProperty("playerState", &apiController.getPlayerAPI()->getPlayerState());
+	engine.rootContext()->setContextProperty("playListsAPI", apiController.getPlayListsAPI());
 	// load qml
   engine.addImportPath(":/spotify-qml/imports");
   const QUrl url(u"qrc:/spotify-qml/imports/Views/qml/MainWindow.qml"_qs);
