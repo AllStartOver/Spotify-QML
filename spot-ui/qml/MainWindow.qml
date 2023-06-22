@@ -10,15 +10,24 @@ Window {
   height: 700
   title: qsTr("Spotify-QML")
 
-
+  Rectangle {
+    id: background
+    anchors.fill: parent
+    color: Style.colorSpotifyBlack
+  }
 
   Rectangle {
     id: navigation
     anchors.left: parent.left
     anchors.top: parent.top
+    anchors.leftMargin: 10
+    anchors.topMargin: 10
+    anchors.rightMargin: 10
+    anchors.bottomMargin: 10
+    radius: 5
     width: parent.width / 5
-    height: (parent.height - player.height) * 0.44
-    color: Style.colorSpotifyBlack
+    height: 100
+    color: Style.colorSpotifyDarkGray
   }
 
   PlayListPage {
@@ -33,8 +42,13 @@ Window {
     anchors.left: parent.left
     anchors.top: navigation.bottom
     anchors.bottom: player.top
+    anchors.leftMargin: 10
+    anchors.topMargin: 10
+    anchors.rightMargin: 10
+    anchors.bottomMargin: 10
+    radius: 5
     width: parent.width / 5
-    color: Style.colorSpotifyBlack
+    color: Style.colorSpotifyDarkGray
 
     ListView {
       id: playListsListView
@@ -42,32 +56,10 @@ Window {
       anchors.fill: parent
       model: playListsAPI.playLists
 
-      delegate: Text {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        leftPadding: 40
-        text: modelData.name
-        color: "gray"
-        font.pixelSize: 14
-        font.bold: false
-        verticalAlignment: Text.AlignVCenter
+      delegate: PlayListDelegate {
+        id: playListItem
         width: parent.width
-        height: 30
-
-        MouseArea {
-          anchors.fill: parent
-          hoverEnabled: true
-          onEntered: {
-            parent.color = "white"
-          }
-          onExited: {
-            parent.color = "gray"
-          }
-          onClicked: {
-            console.log("Clicked on " + modelData.name)
-            playListsAPI.getPlayListTracks(modelData.id)
-          }
-        }
+        height: 70
       }
       Connections {
         target: playListsAPI
@@ -78,31 +70,6 @@ Window {
     }
   }
 
-  Rectangle {
-    width: parent.width / 5
-    height: 1
-    anchors.left: parent.left
-    anchors.top: navigation.bottom
-    gradient: Gradient {
-      orientation: Qt.Horizontal
-      GradientStop {
-        position: 0.0
-        color: "transparent"
-      }
-      GradientStop {
-        position: 0.2
-        color: "gray"
-      }
-      GradientStop {
-        position: 0.8
-        color: "gray"
-      }
-      GradientStop {
-        position: 1.0
-        color: "transparent"
-      }
-    }
-  }
   Player {
     id: player
   }

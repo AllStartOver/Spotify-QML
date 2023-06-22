@@ -9,9 +9,7 @@ Rectangle {
   height: 100
   anchors.bottom: parent.bottom
   anchors.left: parent.left
-  color: Style.colorSpotifyDarkGray
-  border.color: "gray"
-  border.width: 0.5
+  color: Style.colorSpotifyBlack
 
   Image {
     property bool isPlaying: true

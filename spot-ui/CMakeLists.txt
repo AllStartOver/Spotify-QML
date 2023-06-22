@@ -39,6 +39,7 @@ set(qml_files
     "qml/Player.qml"
     "qml/BoundFadeEffect.qml"
     "qml/PlayListPage.qml"
+    "qml/PlayListDelegate.qml"
     "qml/Utils.js"
 )
 
