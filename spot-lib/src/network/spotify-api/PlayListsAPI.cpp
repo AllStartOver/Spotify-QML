@@ -55,8 +55,6 @@ public:
     {
       PlayList *playList = new PlayList(parent, item.toObject());
       playLists.insert(playList->id(), playList);
-      QObject::connect(playList, &PlayList::signalPlayListRequestTracks, parent, &PlayListsAPI::getPlayListTracks);
-      emit playList->signalPlayListRequestTracks(playList->id());
     }
     reply->deleteLater();
     emit parent->signalGetCurrentUserPlaylistsFinished();
@@ -71,7 +69,7 @@ public:
     }
     QByteArray data = reply->readAll();
     QJsonObject json = QJsonDocument::fromJson(data).object();
-    playLists[id]->fromJson(json);
+    playLists[id]->loadTracksFromJson(json);
     reply->deleteLater();
   }
 };

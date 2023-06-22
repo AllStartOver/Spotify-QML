@@ -24,8 +24,10 @@ public:
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
   QString id() const;
   QString name() const;
+  QString img_url() const;
+  QString tracks_href() const;
 
-  void fromJson(QJsonObject json);
+  void loadTracksFromJson(QJsonObject json);
 
 signals:
   void signalPlayListRequestTracks(const QString &id);

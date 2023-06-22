@@ -11,21 +11,23 @@ public:
   {
     id = json.contains("id") ? json["id"].toString() : "";
     name = json.contains("name") ? json["name"].toString() : "Liked Songs";
-    qDebug() << "Playlist: " << name;
+    img_url = json["images"].toArray()[0].toObject()["url"].toString();
+    tracks_href = json["tracks"].toObject()["href"].toString();
+    qDebug() << "Playlist: " << name << " " << tracks_href;
   }
   PlayList *parent;
   QString id;
   QString name;
+  QString img_url;
+  QString tracks_href;
   QList<Track*> tracks;
 
-  void fromJson(QJsonObject json)
+  void loadTracksFromJson(QJsonObject json)
   {
-    qDebug() << name << ": " << json["items"].toArray().size();
-  }
-
-  void addFromJson(QJsonObject json)
-  {
-    qDebug() << name << ": " << json["items"].toArray().size();
+    for (auto item : json["items"].toArray()) {
+      auto track = new Track(parent, item.toObject()["track"].toObject());
+      tracks.append(track);
+    }
   }
 };
 
@@ -40,7 +42,18 @@ PlayList::PlayList(QObject *parent, QJsonObject json)
 
 PlayList::~PlayList() {}
 
+// Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
+
 QString PlayList::id() const { return impl->id; }
 QString PlayList::name() const { return impl->name; }
-void PlayList::fromJson(QJsonObject json) { return impl->fromJson(json); }
+QString PlayList::img_url() const { return impl->img_url; }
+QString PlayList::tracks_href() const { return impl->tracks_href; }
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+void PlayList::loadTracksFromJson(QJsonObject json)
+{
+  return impl->loadTracksFromJson(json);
+}
+
 }}

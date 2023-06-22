@@ -6,8 +6,8 @@ import Styles 1.0
 
 Window {
   visible: true
-  width: Style.defaultWindowWidth
-  height: Style.defaultWindowHeight
+  width: 1200
+  height: 700
   title: qsTr("Spotify-QML")
 
 
@@ -21,6 +21,13 @@ Window {
     color: Style.colorSpotifyBlack
   }
 
+  PlayListPage {
+    anchors.left: navigation.right
+    anchors.right: parent.right
+    anchors.top: parent.top
+    anchors.bottom: player.top
+  }
+
   Rectangle {
     id: playerLists
     anchors.left: parent.left
@@ -31,18 +38,36 @@ Window {
 
     ListView {
       id: playListsListView
+      anchors.topMargin: 10
       anchors.fill: parent
       model: playListsAPI.playLists
 
       delegate: Text {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        leftPadding: 40
         text: modelData.name
-        color: "white"
-        font.pixelSize: 12
-        font.bold: true
-        horizontalAlignment: Text.AlignHCenter
+        color: "gray"
+        font.pixelSize: 14
+        font.bold: false
         verticalAlignment: Text.AlignVCenter
         width: parent.width
         height: 30
+
+        MouseArea {
+          anchors.fill: parent
+          hoverEnabled: true
+          onEntered: {
+            parent.color = "white"
+          }
+          onExited: {
+            parent.color = "gray"
+          }
+          onClicked: {
+            console.log("Clicked on " + modelData.name)
+            playListsAPI.getPlayListTracks(modelData.id)
+          }
+        }
       }
       Connections {
         target: playListsAPI

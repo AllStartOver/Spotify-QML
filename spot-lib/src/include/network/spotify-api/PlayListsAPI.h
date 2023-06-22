@@ -26,9 +26,9 @@ public:
 
   QQmlListProperty<PlayList> playLists();
 
-public slots:
   void getCurrentUserPlaylists();
-  void getPlayListTracks(const QString &id);
+
+  Q_INVOKABLE void getPlayListTracks(const QString &id);
 
 signals: 
   void signalGetCurrentUserPlaylistsFinished();
