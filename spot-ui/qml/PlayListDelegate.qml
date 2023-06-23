@@ -5,18 +5,18 @@ import Views 1.0
 import Styles 1.0
 
 Rectangle {
-
+  property alias playListNameText: playListName.text;
+  property alias playListOwnerText: playListOwner.text;
+  property alias playListCoverSource: playListCover.source;
   color: Style.colorSpotifyDarkGray
 
-  Rectangle {
+  Image {
     id: playListCover
     width: 60
     height: width
     anchors.verticalCenter: parent.verticalCenter
     anchors.left: parent.left
     anchors.leftMargin: 10
-    radius: 30
-    color: "white"
   }
 
   Text {
@@ -39,5 +39,12 @@ Rectangle {
     anchors.verticalCenterOffset: 10
     text: "MockOwner"
     color: "gray"
+  }
+
+  MouseArea {
+    anchors.fill: parent
+    onClicked: {
+      modelData.signalPlayListRequestTracks(modelData.id)
+    }
   }
 }

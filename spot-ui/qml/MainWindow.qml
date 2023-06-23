@@ -60,6 +60,18 @@ Window {
         id: playListItem
         width: parent.width
         height: 70
+        playListNameText: modelData.name
+        playListOwnerText: modelData.owner
+
+        Component.onCompleted: {
+          modelData.signalPlayListRequestCover(modelData.img_url, modelData.id)
+        }   
+        Connections {
+          target: modelData
+          function onSignalPlayListRequestCoverFinished() {
+            playListCoverSource = "file:///" + executablePath + "/" + modelData.imgFileName;
+          }
+        }
       }
       Connections {
         target: playListsAPI

@@ -38,6 +38,21 @@ public:
     QNetworkReply *reply = manager->get(request);
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id,  this]() { onGetPlayListTracks(reply, id); });
   }
+
+  void getPlayListCover(const QString& url, const QString& id)
+  {
+    QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
+    playLists[id]->imgFileName() = fileName;
+    if (QFile::exists(fileName))
+    {
+      qDebug() << "file exists";
+      emit playLists[id]->signalPlayListRequestCoverFinished();
+      return;
+    }
+    QNetworkRequest request(url);
+    QNetworkReply *reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id, this]() { onGetPlayListCover(reply, id); });
+  }
   // SLOTS
   // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   void onGetCurrentUserPlayLists(QNetworkReply *reply)
@@ -55,6 +70,8 @@ public:
     {
       PlayList *playList = new PlayList(parent, item.toObject());
       playLists.insert(playList->id(), playList);
+      QObject::connect(playList, &PlayList::signalPlayListRequestCover, parent, [this](const QString& url, const QString& id) { getPlayListCover(url, id); });
+      QObject::connect(playList, &PlayList::signalPlayListRequestTracks, parent, [this](const QString& id) { getPlayListTracks(id); });
     }
     reply->deleteLater();
     emit parent->signalGetCurrentUserPlaylistsFinished();
@@ -70,8 +87,34 @@ public:
     QByteArray data = reply->readAll();
     QJsonObject json = QJsonDocument::fromJson(data).object();
     playLists[id]->loadTracksFromJson(json);
+    emit parent->signalGetPlayListTracksFinished(id);
     reply->deleteLater();
   }
+  void onGetPlayListCover(QNetworkReply *reply, const QString &id)
+  {
+    if (!parent->log(reply, "GetPlayListCover"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    // Save the image
+    QByteArray data = reply->readAll();
+    QFile file(playLists[id]->imgFileName());
+    QDir dir;
+    if (!dir.exists("cache_imgs")) {
+      dir.mkpath("cache_imgs");
+    }
+    if (file.open(QIODevice::WriteOnly)) {
+      file.write(data);
+      file.close();
+      qDebug() << "write a img file to " << playLists[id]->imgFileName();
+    }
+    else {
+      qDebug() << "Failed to open file";
+    }
+    reply->deleteLater();
+  }
+
 };
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -101,5 +144,9 @@ void PlayListsAPI::getPlayListTracks(const QString &id)
   return impl->getPlayListTracks(id);
 }
 
+QQmlListProperty<Track> PlayListsAPI::getPlayListTracksByID(const QString &id)
+{
+  return impl->playLists[id]->tracks();
+}
 
 }}}

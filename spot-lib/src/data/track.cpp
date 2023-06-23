@@ -12,7 +12,6 @@ public:
     id = json["id"].toString();
     name = json["name"].toString();
     album = json["album"].toObject()["name"].toString();
-    qDebug() << "Track: " << name << " " << album;
   }
   Track *parent;
   QString id;

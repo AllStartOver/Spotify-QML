@@ -1,6 +1,8 @@
 #pragma once
 #include <QObject>
 #include <QMap>
+#include <QFile>
+#include <QDir>
 #include <QDebug>
 #include <QScopedPointer>
 #include <QJsonArray>

@@ -11,4 +11,23 @@ Rectangle {
   anchors.bottomMargin: 10
   radius: 5
   color: Style.colorSpotifyDarkGray
+
+  ListView {
+    id: playListTracksView
+    anchors.topMargin: 10
+    anchors.fill: parent
+
+    delegate: TrackDelegate {
+      id: trackDelegate
+      width: parent.width
+      height: 50
+    }
+
+    Connections {
+      target: playListsAPI
+      function onSignalGetPlayListTracksFinished(id){
+        playListTracksView.model = playListsAPI.getPlayListTracksByID(id)
+      }
+    }
+  }  
 }

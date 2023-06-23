@@ -27,12 +27,14 @@ public:
   QQmlListProperty<PlayList> playLists();
 
   void getCurrentUserPlaylists();
+  void getPlayListTracks(const QString &id);
+  Q_INVOKABLE QQmlListProperty<Track> getPlayListTracksByID(const QString &id);
 
-  Q_INVOKABLE void getPlayListTracks(const QString &id);
+public slots:
 
 signals: 
   void signalGetCurrentUserPlaylistsFinished();
-  void signalGetPlayListTracksFinished();
+  void signalGetPlayListTracksFinished(QString id);
   void signalMock();
 private:
   class Implementation;
