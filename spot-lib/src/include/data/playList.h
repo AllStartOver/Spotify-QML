@@ -13,6 +13,8 @@
 namespace libspot {
 namespace data {
 
+class Track;
+
 class PlayList : public QObject
 {
   Q_OBJECT
@@ -21,8 +23,10 @@ class PlayList : public QObject
   Q_PROPERTY(QString owner READ owner CONSTANT)
   Q_PROPERTY(QString img_url READ img_url CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
+  Q_PROPERTY(QString tracks_href READ tracks_href CONSTANT)
+  Q_PROPERTY(QQmlListProperty<Track> tracks READ tracks CONSTANT)
 public:
-  explicit PlayList(QObject* parent, QJsonObject json);
+  explicit PlayList(QObject *parent, QJsonObject json);
   ~PlayList();
 
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
@@ -32,6 +36,7 @@ public:
   QString tracks_href() const;
   QString owner() const;
   QString& imgFileName();
+  const QString& uri() const;
 
   QQmlListProperty<Track> tracks();
 

@@ -28,7 +28,7 @@ public:
 
   void getCurrentUserPlaylists();
   void getPlayListTracks(const QString &id);
-  Q_INVOKABLE QQmlListProperty<Track> getPlayListTracksByID(const QString &id);
+  Q_INVOKABLE PlayList* getPlayListByID(const QString &id);
 
 public slots:
 

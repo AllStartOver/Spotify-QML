@@ -22,6 +22,7 @@ public:
   Q_INVOKABLE void updatePlayerState(bool forceTrackUpdate);
   Q_INVOKABLE void pausePlayback();
   Q_INVOKABLE void resumePlayback();
+  Q_INVOKABLE void startPlayback(QString context_uri, int offset);
   Q_INVOKABLE void prevTrack();
   Q_INVOKABLE void nextTrack();
   Q_INVOKABLE void seekTrack(int positionMs);

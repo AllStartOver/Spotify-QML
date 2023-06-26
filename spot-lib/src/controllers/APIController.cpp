@@ -10,6 +10,7 @@ public:
   Implementation(APIController* _parent, QString &access_token)
     : parent(_parent) 
   {
+    networkManager = new QNetworkAccessManager(parent);
     playerAPI = new PlayerAPI(parent, access_token);
     playListsAPI = new PlayListsAPI(parent, access_token);
     playListsAPI->getCurrentUserPlaylists();
@@ -17,6 +18,7 @@ public:
   APIController *parent;
   PlayerAPI *playerAPI;
   PlayListsAPI *playListsAPI;
+  QNetworkAccessManager *networkManager;
 };
 
 //#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -6,7 +6,6 @@ import Styles 1.0
 
 Rectangle {
   color: Style.colorSpotifyDarkGray
-  property var track
 
   Text {
     id: trackIndex
@@ -20,13 +19,12 @@ Rectangle {
     color: "white"
   }
 
-  Rectangle {
+  Image {
     id: trackCover
     anchors.left: trackIndex.right
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width * 0.04
     height: width
-    color: "white"
   }
 
   Text {
@@ -34,38 +32,34 @@ Rectangle {
     font.pixelSize: 12
     anchors.left: trackCover.right
     anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: -5
+    anchors.verticalCenterOffset: -7
     width: parent.width * 0.41
-    text: track.name
+    text: modelData.name
     leftPadding: 10
     color: "white"
   }
 
   ListView {
     id: trackArtists
+    visible: true
     anchors.left: trackCover.right
     anchors.leftMargin: 10
     anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: 5
+    anchors.verticalCenterOffset: 7
     width: parent.width * 0.35
+    height: 10
     orientation: ListView.Horizontal
-    model: track.artists
+    model: modelData.artists
     delegate: Row {
       Text {
+        font.pixelSize: 12
         text: modelData.name
         color: "gray"
-        font.pixelSize: 12
-        MouseArea {
-          anchors.fill: parent
-          onClicked: {
-            console.log("Clicked on artist: " + modelData.name)
-          }
-        }
       }
       Text {
+        font.pixelSize: 12
         text: index < trackArtists.count - 1 ? ", " : ""
         color: "gray"
-        font.pixelSize: 12
       }
     }
   }
@@ -76,7 +70,8 @@ Rectangle {
     anchors.left: trackName.right
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width * 0.25
-    text: track.album
+    text: modelData.album
+    font.bold: true
     color: "gray"
   }
 
@@ -95,8 +90,31 @@ Rectangle {
     anchors.left: addDate.right
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width * 0.15
-    text: "Mock Duration"
+    text: modelData.duration_ms
     font.pixelSize: 12
     color: "gray"
+  }
+
+  MouseArea {
+    anchors.fill: parent
+    hoverEnabled: true
+    onDoubleClicked: {
+      console.log("Double Clicked " + modelData.name)
+      playerAPI.startPlayback(modelData.context_uri, index)
+    }
+    onEntered: {
+      parent.color = "lightgray"
+    }
+    onExited: {
+      parent.color = Style.colorSpotifyDarkGray
+    }
+  }
+
+
+  Connections {
+    target: modelData
+    function onSignalTrackRequestCoverFinished() {
+      trackCover.source = "file:///" + executablePath + "/" + modelData.imgFileName
+    }
   }
 }

@@ -14,7 +14,7 @@ public:
     img_url = json["images"].toArray()[0].toObject()["url"].toString();
     tracks_href = json["tracks"].toObject()["href"].toString();
     owner = json["owner"].toObject()["display_name"].toString();
-    qDebug() << "Playlist: " << name << " " << tracks_href;
+    uri = json["uri"].toString();
   }
   PlayList *parent;
   QString id;
@@ -23,15 +23,16 @@ public:
   QString tracks_href;
   QString owner;
   QString imgFileName;
+  QString uri;
   QList<Track*> tracks;
 
   void loadTracksFromJson(QJsonObject json)
   {
+    tracks.clear();
     for (auto item : json["items"].toArray()) {
-      auto track = new Track(parent, item.toObject()["track"].toObject());
+      auto track = new Track(parent, item.toObject()["track"].toObject(), uri);
       tracks.append(track);
     }
-    qDebug() << "Tracks loaded: " << tracks.size();
   }
 };
 
@@ -39,7 +40,6 @@ public:
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 PlayList::PlayList(QObject *parent, QJsonObject json)
-  : QObject(parent)
 {
   impl.reset(new Implementation(this, json));
 }
@@ -54,6 +54,7 @@ QString PlayList::img_url() const { return impl->img_url; }
 QString PlayList::tracks_href() const { return impl->tracks_href; }
 QString PlayList::owner() const { return impl->owner; }
 QString& PlayList::imgFileName() { return impl->imgFileName; }
+const QString& PlayList::uri() const { return impl->uri; }
 
 QQmlListProperty<Track> PlayList::tracks()
 {

@@ -50,6 +50,21 @@ public:
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onResumePlayback(reply); });
   }
 
+  void startPlayback(QString context_uri, int offset)
+  {
+    QString endpoint = "/play";
+    QNetworkRequest request = createBaseRequest(endpoint);
+    QJsonObject json;
+    json["context_uri"] = context_uri;
+    QJsonObject offsetJson;
+    offsetJson["position"] = offset;
+    json["offset"] = offsetJson;
+    QJsonDocument doc(json);
+    QByteArray data = doc.toJson();
+    QNetworkReply *reply = manager->put(request, data);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onStartPlayback(reply); });
+  }
+
   void prevTrack()
   {
     QString endpoint = "/previous";
@@ -159,6 +174,12 @@ public:
     parent->log(reply, "Resume playback");
   }
 
+  void onStartPlayback(QNetworkReply* reply)
+  {
+    parent->log(reply, "Start playback");
+    requestPlayerState(true);
+  }
+
   void onPrevTrack(QNetworkReply* reply)
   {
     parent->log(reply, "Previous track");
@@ -240,6 +261,11 @@ void PlayerAPI::resumePlayback()
   return impl->resumePlayback();
 }
 
+void PlayerAPI::startPlayback(QString context_uri, int offset)
+{
+  return impl->startPlayback(context_uri, offset);
+}
+
 void PlayerAPI::prevTrack()
 {
   return impl->prevTrack();
@@ -264,7 +290,6 @@ void PlayerAPI::setLoopMode(QString mode)
 {
   return impl->setLoopMode(mode);
 }
-
 
 QString& PlayerAPI::getCurrentDeviceId() const
 {

@@ -15,7 +15,7 @@ public:
     manager = new QNetworkAccessManager(parent);
   }
 
-  PlayListsAPI* parent;
+  PlayListsAPI *parent;
   QNetworkAccessManager* manager;
   QString& access_token;
 
@@ -144,9 +144,9 @@ void PlayListsAPI::getPlayListTracks(const QString &id)
   return impl->getPlayListTracks(id);
 }
 
-QQmlListProperty<Track> PlayListsAPI::getPlayListTracksByID(const QString &id)
+PlayList* PlayListsAPI::getPlayListByID(const QString &id)
 {
-  return impl->playLists[id]->tracks();
+  return impl->playLists[id];
 }
 
 }}}

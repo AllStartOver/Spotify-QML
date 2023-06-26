@@ -90,6 +90,7 @@ ScrollView {
   }
 
   ListView {
+    property var context_uri
     id: playListTracksView
     anchors.top: headerLine.bottom
     anchors.topMargin: 10
@@ -101,13 +102,16 @@ ScrollView {
       id: trackDelegate
       width: parent.width
       height: 50
-      track: modelData
+
+      Component.onCompleted: {
+        modelData.signalTrackRequestCover(modelData.img_url)
+      }
     }
 
     Connections {
       target: playListsAPI
-      function onSignalGetPlayListTracksFinished(id){
-        playListTracksView.model = playListsAPI.getPlayListTracksByID(id)
+      function onSignalGetPlayListTracksFinished(id) {
+        playListTracksView.model = playListsAPI.getPlayListByID(id).tracks
       }
     }
   }  
