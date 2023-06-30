@@ -6,6 +6,7 @@
     "tuple": "cpp",
     "variant": "cpp",
     "xutility": "cpp",
-    "qnetworkrequest": "cpp"
+    "qnetworkrequest": "cpp",
+    "qscopedpointer": "cpp"
   }
 }

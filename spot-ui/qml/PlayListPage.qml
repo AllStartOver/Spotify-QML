@@ -14,7 +14,7 @@ ListView {
   header: Rectangle {
     width: parent.width
     height: 400
-    color: Style.colorSpotifyDarkGray
+    color: Style.colorSpotifyWhite
 
     Image {
       id: cover

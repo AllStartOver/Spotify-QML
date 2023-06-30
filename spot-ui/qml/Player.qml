@@ -56,7 +56,9 @@ Rectangle {
     anchors.rightMargin: 30
     anchors.verticalCenter: button_play_pause.verticalCenter
 
-    source: trackPrevMouseArea.containsMouse ? "qrc:/spotify-qml/imports/Images/trackPrevHover.svg" : "qrc:/spotify-qml/imports/Images/trackPrev.svg"
+    source: Utils.ImagePath("trackPrevHover.svg")
+
+    opacity: trackPrevMouseArea.containsMouse ? 1 : 0.5
 
     MouseArea {
       id: trackPrevMouseArea
