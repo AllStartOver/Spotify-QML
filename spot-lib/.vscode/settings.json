@@ -5,6 +5,7 @@
     "istream": "cpp",
     "tuple": "cpp",
     "variant": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "qnetworkrequest": "cpp"
   }
 }

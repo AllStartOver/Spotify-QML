@@ -6,6 +6,7 @@
 
 #include "controllers/AuthController.h"
 #include "controllers/APIController.h"
+#include "controllers/ViewController.h"
 
 #include "network/spotify-api/PlayerAPI.h"
 #include "network/spotify-api/PlayListsAPI.h"
@@ -48,7 +49,9 @@ int main(int argc, char *argv[])
 	}
 
   QString access_token = authController.getAccount()->access_token;
-	APIController apiController(nullptr, access_token);
+
+	APIController::instance()->init(access_token);
+	ViewController* viewController = new ViewController();
 
   qmlRegisterType<PlayerAPI>("libspot", 1, 0, "PlayerAPI");
 	qmlRegisterType<PlayListsAPI>("libspot", 1, 0, "PlayListsAPI");
@@ -58,9 +61,10 @@ int main(int argc, char *argv[])
   // register types
 	QString executablePath = QCoreApplication::applicationDirPath();
 	engine.rootContext()->setContextProperty("executablePath", executablePath);
-  engine.rootContext()->setContextProperty("playerAPI", apiController.getPlayerAPI());
-	engine.rootContext()->setContextProperty("playerState", &apiController.getPlayerAPI()->getPlayerState());
-	engine.rootContext()->setContextProperty("playListsAPI", apiController.getPlayListsAPI());
+  engine.rootContext()->setContextProperty("playerAPI", APIController::instance()->getPlayerAPI());
+	engine.rootContext()->setContextProperty("playerState", &APIController::instance()->getPlayerAPI()->getPlayerState());
+	engine.rootContext()->setContextProperty("playListsAPI", APIController::instance()->getPlayListsAPI());
+	engine.rootContext()->setContextProperty("viewController", viewController);
 	// load qml
   engine.addImportPath(":/spotify-qml/imports");
   const QUrl url(u"qrc:/spotify-qml/imports/Views/qml/MainWindow.qml"_qs);

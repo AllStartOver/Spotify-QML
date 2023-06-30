@@ -31,6 +31,12 @@ set(images
   "heartGray.svg"
   "heartGreen.svg"
   "image_test.jpeg"
+  "HomeGray.svg"
+  "HomeWhite.svg"
+  "HomeFocus.svg"
+  "SearchGray.svg"
+  "SearchWhite.svg"
+  "SearchFocus.svg"
 )
 
 qt_add_qml_module(ImagesLib

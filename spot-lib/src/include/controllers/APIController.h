@@ -13,15 +13,17 @@ class APIController : public QObject
 {
   Q_OBJECT
 public:
-  explicit APIController(QObject *parent, QString &access_token);
-  ~APIController();
+  static APIController* instance();
+  void init(QString& access_token);
 
   // API GETER
   PlayerAPI* getPlayerAPI();
   PlayListsAPI* getPlayListsAPI();
 
 private:
-  class Implementation;
-  QScopedPointer<Implementation> impl;
+  APIController();
+  ~APIController();
+  PlayerAPI* m_playerAPI;
+  PlayListsAPI* m_playListsAPI;
 };
 }}

@@ -16,7 +16,7 @@ Window {
     color: Style.colorSpotifyBlack
   }
 
-  Rectangle {
+  NavigationView {
     id: navigation
     anchors.left: parent.left
     anchors.top: parent.top
@@ -24,17 +24,19 @@ Window {
     anchors.topMargin: 10
     anchors.rightMargin: 10
     anchors.bottomMargin: 10
-    radius: 5
     width: parent.width / 5
     height: 100
-    color: Style.colorSpotifyDarkGray
   }
 
-  PlayListPage {
-    anchors.left: navigation.right
+  MasterPage {
+    anchors.left: playerLists.right
     anchors.right: parent.right
     anchors.top: parent.top
     anchors.bottom: player.top
+    anchors.leftMargin: 10
+    anchors.topMargin: 10
+    anchors.rightMargin: 10
+    anchors.bottomMargin: 10
   }
 
   Rectangle {
@@ -60,22 +62,12 @@ Window {
         id: playListItem
         width: parent.width
         height: 70
-        playListNameText: modelData.name
-        playListOwnerText: modelData.owner
-
-        Component.onCompleted: {
-          modelData.signalPlayListRequestCover(modelData.img_url, modelData.id)
-        }   
-        Connections {
-          target: modelData
-          function onSignalPlayListRequestCoverFinished() {
-            playListCoverSource = "file:///" + executablePath + "/" + modelData.imgFileName;
-          }
-        }
+        playList: modelData
       }
       Connections {
         target: playListsAPI
         function onSignalGetCurrentUserPlaylistsFinished() {
+          console.log("onSignalGetCurrentUserPlaylistsFinished" + playListsAPI.playLists.length)
           playListsListView.model = playListsAPI.playLists
         }
       }
@@ -84,6 +76,10 @@ Window {
 
   Player {
     id: player
+    width: parent.width
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    height: 85
   }
 }
 

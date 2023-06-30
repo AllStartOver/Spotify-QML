@@ -4,3 +4,13 @@ function formatTime(time) {
 
   return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds)
 }
+
+function QMLPath(fileName)
+{
+  return "qrc:/spotify-qml/imports/Views/qml/" + fileName
+}
+
+function ImagePath(fileName)
+{
+  return "qrc:/spotify-qml/imports/Images/" + fileName 
+}

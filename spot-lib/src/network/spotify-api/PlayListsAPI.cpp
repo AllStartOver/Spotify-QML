@@ -20,6 +20,7 @@ public:
   QString& access_token;
 
   QMap<QString, PlayList*> playLists;
+  QString currentPlayListID;
 
   // MEMBER FUNCTIONS
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -33,6 +34,13 @@ public:
 
   void getPlayListTracks(const QString &id)
   {
+    if (!playLists[id]->isEmpty())
+    {
+      emit parent->signalGetPlayListTracksFinished(id);
+      qDebug() << "playlist already loaded";
+      currentPlayListID = id;
+      return;
+    }
     QString endpoint = "playlists/" + id + "/tracks?limit=100";
     QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
     QNetworkReply *reply = manager->get(request);
@@ -65,7 +73,6 @@ public:
     QByteArray data = reply->readAll();
     QJsonObject json = QJsonDocument::fromJson(data).object();
     playLists.clear();
-    qDebug() << "find " << json["items"].toArray().size() << " playlists";
     for (auto item : json["items"].toArray())
     {
       PlayList *playList = new PlayList(parent, item.toObject());
@@ -88,6 +95,7 @@ public:
     QJsonObject json = QJsonDocument::fromJson(data).object();
     playLists[id]->loadTracksFromJson(json);
     emit parent->signalGetPlayListTracksFinished(id);
+    currentPlayListID = id;
     reply->deleteLater();
   }
   void onGetPlayListCover(QNetworkReply *reply, const QString &id)
@@ -147,6 +155,11 @@ void PlayListsAPI::getPlayListTracks(const QString &id)
 PlayList* PlayListsAPI::getPlayListByID(const QString &id)
 {
   return impl->playLists[id];
+}
+
+QString& PlayListsAPI::currentPlayListID()
+{
+  return impl->currentPlayListID;
 }
 
 }}}

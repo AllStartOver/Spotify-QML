@@ -41,6 +41,9 @@ set(qml_files
     "qml/PlayListPage.qml"
     "qml/PlayListDelegate.qml"
     "qml/TrackDelegate.qml"
+    "qml/MasterPage.qml"
+    "qml/HomePage.qml"
+    "qml/NavigationView.qml"
     "qml/Utils.js"
 )
 

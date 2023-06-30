@@ -42,6 +42,8 @@ public:
 
   void loadTracksFromJson(QJsonObject json);
 
+  bool isEmpty() const;
+
 signals:
   void signalPlayListRequestTracks(const QString& id);
   void signalPlayListRequestCover(const QString& url, const QString& id);

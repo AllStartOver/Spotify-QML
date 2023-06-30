@@ -5,10 +5,6 @@ import Views 1.0
 import Styles 1.0
 
 Rectangle {
-  width: parent.width
-  height: 100
-  anchors.bottom: parent.bottom
-  anchors.left: parent.left
   color: Style.colorSpotifyBlack
 
   Image {

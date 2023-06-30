@@ -29,6 +29,7 @@ public:
   void getCurrentUserPlaylists();
   void getPlayListTracks(const QString &id);
   Q_INVOKABLE PlayList* getPlayListByID(const QString &id);
+  Q_INVOKABLE QString& currentPlayListID();
 
 public slots:
 

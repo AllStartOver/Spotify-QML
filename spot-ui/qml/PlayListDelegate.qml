@@ -5,9 +5,8 @@ import Views 1.0
 import Styles 1.0
 
 Rectangle {
-  property alias playListNameText: playListName.text;
-  property alias playListOwnerText: playListOwner.text;
   property alias playListCoverSource: playListCover.source;
+  property var playList;
   color: Style.colorSpotifyDarkGray
 
   Image {
@@ -26,7 +25,7 @@ Rectangle {
     anchors.leftMargin: 10
     anchors.verticalCenter: parent.verticalCenter
     anchors.verticalCenterOffset: -10
-    text: "MockName"
+    text: playList.name
     color: "white"
   }
 
@@ -37,14 +36,25 @@ Rectangle {
     anchors.leftMargin: 10
     anchors.verticalCenter: parent.verticalCenter
     anchors.verticalCenterOffset: 10
-    text: "MockOwner"
+    text: playList.owner
     color: "gray"
   }
 
   MouseArea {
     anchors.fill: parent
     onClicked: {
-      modelData.signalPlayListRequestTracks(modelData.id)
+      viewController.signalChangePlayListSource(Utils.QMLPath("PlayListPage.qml"), playList.id)
+      playList.signalPlayListRequestTracks(playList.id)
+    }
+  }
+
+  Component.onCompleted: {
+    playList.signalPlayListRequestCover(playList.img_url, playList.id)
+  }   
+  Connections {
+    target: modelData
+    function onSignalPlayListRequestCoverFinished() {
+      playListCoverSource = "file:///" + executablePath + "/" + playList.imgFileName;
     }
   }
 }

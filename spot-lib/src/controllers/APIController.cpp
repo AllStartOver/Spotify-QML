@@ -1,49 +1,37 @@
 #include "controllers/APIController.h"
 
-using namespace libspot::network::API;
 namespace libspot {
 namespace controllers {
 
-class APIController::Implementation
+APIController* APIController::instance()
 {
-public:
-  Implementation(APIController* _parent, QString &access_token)
-    : parent(_parent) 
-  {
-    networkManager = new QNetworkAccessManager(parent);
-    playerAPI = new PlayerAPI(parent, access_token);
-    playListsAPI = new PlayListsAPI(parent, access_token);
-    playListsAPI->getCurrentUserPlaylists();
-  }
-  APIController *parent;
-  PlayerAPI *playerAPI;
-  PlayListsAPI *playListsAPI;
-  QNetworkAccessManager *networkManager;
-};
+  static APIController instance;
+  return &instance;
+}
 
-//#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-APIController::APIController(QObject *parent, QString &access_token)
-  : QObject(parent)
+PlayerAPI* APIController::getPlayerAPI()
 {
-  impl.reset(new Implementation(this, access_token));
+  return m_playerAPI;
+}
+
+PlayListsAPI* APIController::getPlayListsAPI()
+{
+  return m_playListsAPI;
+}
+
+APIController::APIController()
+{
 }
 
 APIController::~APIController()
 {
 }
 
-//#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-PlayerAPI* APIController::getPlayerAPI()
+void APIController::init(QString& access_token)
 {
-  return impl->playerAPI;
-}
-
-PlayListsAPI* APIController::getPlayListsAPI()
-{
-  return impl->playListsAPI;
+  m_playerAPI = new PlayerAPI(instance(), access_token);
+  m_playListsAPI = new PlayListsAPI(instance(), access_token);
+  m_playListsAPI->getCurrentUserPlaylists();
 }
 
 }}

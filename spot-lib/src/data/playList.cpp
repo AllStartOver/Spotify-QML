@@ -11,7 +11,10 @@ public:
   {
     id = json.contains("id") ? json["id"].toString() : "";
     name = json.contains("name") ? json["name"].toString() : "Liked Songs";
-    img_url = json["images"].toArray()[0].toObject()["url"].toString();
+    QJsonArray img_urls = json["images"].toArray();
+    if (img_urls.size() > 0) {
+      img_url = img_urls[0].toObject()["url"].toString();
+    }
     tracks_href = json["tracks"].toObject()["href"].toString();
     owner = json["owner"].toObject()["display_name"].toString();
     uri = json["uri"].toString();
@@ -41,6 +44,7 @@ public:
 
 PlayList::PlayList(QObject *parent, QJsonObject json)
 {
+  qDebug() << "PlayLIst::PlayList()";
   impl.reset(new Implementation(this, json));
 }
 
@@ -67,5 +71,7 @@ void PlayList::loadTracksFromJson(QJsonObject json)
 {
   return impl->loadTracksFromJson(json);
 }
+
+bool PlayList::isEmpty() const { return impl->tracks.isEmpty(); }
 
 }}
