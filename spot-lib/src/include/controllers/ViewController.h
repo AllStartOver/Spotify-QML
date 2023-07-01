@@ -14,6 +14,7 @@ public:
 
 signals:
   void signalChangePlayListSource(QString source, QString id);
+  void signalChangeAlbumSource(QString source, QString id);
 };
 
 }}

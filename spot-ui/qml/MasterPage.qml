@@ -31,6 +31,11 @@ Item {
       {
         pageLoader.source = page.source
       }
+      else if (page.source == Utils.QMLPath("AlbumPage.qml"))
+      {
+        albumAPI.requestAlbumByID(page.id)
+        pageLoader.source = page.source
+      }
     }
   }
 
@@ -58,6 +63,11 @@ Item {
       {
         pageLoader.source = page.source
       }
+      else if (page.source == Utils.QMLPath("AlbumPage.qml"))
+      {
+        albumAPI.requestAlbumByID(page.id)
+        pageLoader.source = page.source
+      }
     }
   }
 
@@ -75,7 +85,12 @@ Item {
         pageLoader.source = source
         stackPages.push({id: id, source: source})
         currentIndex++
-        console.log(stackPages)
+      }
+      function onSignalChangeAlbumSource(source, id)
+      {
+        pageLoader.source = source
+        stackPages.push({id: id, source: source})
+        currentIndex++
       }
     }
   }

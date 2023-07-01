@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
   engine.rootContext()->setContextProperty("playerAPI", APIController::instance()->getPlayerAPI());
 	engine.rootContext()->setContextProperty("playerState", &APIController::instance()->getPlayerAPI()->getPlayerState());
 	engine.rootContext()->setContextProperty("playListsAPI", APIController::instance()->getPlayListsAPI());
+	engine.rootContext()->setContextProperty("albumAPI", APIController::instance()->getAlbumAPI());
 	engine.rootContext()->setContextProperty("viewController", viewController);
 	// load qml
   engine.addImportPath(":/spotify-qml/imports");

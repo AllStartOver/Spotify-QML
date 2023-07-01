@@ -69,10 +69,23 @@ Rectangle {
     font.pixelSize: 14
     anchors.left: trackName.right
     anchors.verticalCenter: parent.verticalCenter
+    z: 2
     width: parent.width * 0.25
     text: modelData.album
     font.bold: true
-    color: "gray"
+    color: "white"
+    opacity: albumMouseArea.containsMouse ? 1 : 0.5
+
+    MouseArea {
+      id: albumMouseArea
+      anchors.fill: albumName
+      hoverEnabled: true
+      preventStealing: true
+      onClicked: {
+        viewController.signalChangeAlbumSource(Utils.QMLPath("AlbumPage.qml"), modelData.album_id)
+        albumAPI.requestAlbumByID(modelData.album_id)
+      }
+    }
   }
 
   Text {
@@ -97,19 +110,18 @@ Rectangle {
 
   MouseArea {
     anchors.fill: parent
+    z: 1
     hoverEnabled: true
     onDoubleClicked: {
       console.log("Double Clicked " + modelData.name)
       playerAPI.startPlayback(modelData.context_uri, index)
     }
     onEntered: {
-      parent.color = "lightgray"
     }
     onExited: {
       parent.color = Style.colorSpotifyDarkGray
     }
   }
-
 
   Connections {
     target: modelData

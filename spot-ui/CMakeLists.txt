@@ -40,6 +40,8 @@ set(qml_files
     "qml/BoundFadeEffect.qml"
     "qml/PlayListPage.qml"
     "qml/PlayListDelegate.qml"
+    "qml/AlbumPage.qml"
+    "qml/AlbumTrackDelegate.qml"
     "qml/TrackDelegate.qml"
     "qml/MasterPage.qml"
     "qml/HomePage.qml"

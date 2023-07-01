@@ -8,6 +8,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include "network/NetworkManager.h"
 namespace libspot {
 namespace network {
 namespace API {

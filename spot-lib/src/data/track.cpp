@@ -15,6 +15,7 @@ public:
     id = json["id"].toString();
     name = json["name"].toString();
     album = json["album"].toObject()["name"].toString();
+    album_id = json["album"].toObject()["id"].toString();
     for (auto artist : json["artists"].toArray()) {
       artists.append(new Artist(parent, artist.toObject()));
     }
@@ -25,14 +26,29 @@ public:
       getTrackCover(url);
     });
   }
+
+  Implementation(Track* _parent, QJsonObject json)
+    : parent(_parent)
+  {
+    id = json["id"].toString();
+    name = json["name"].toString();
+    album = json["album"].toObject()["name"].toString();
+    album_id = json["album"].toObject()["id"].toString();
+    for (auto artist : json["artists"].toArray()) {
+      artists.append(new Artist(parent, artist.toObject()));
+    }
+    duration_ms = json["duration_ms"].toInt();
+  }
+
   QNetworkAccessManager *manager = NetworkManager::instance().getNetworkManager();
   Track *parent;
   QString id;
   QString name;
   QString album;
+  QString album_id;
   QString img_url;
   QString imgFileName;
-  QString& context_uri;
+  QString context_uri;
   int duration_ms;
   QList<Artist*> artists;
 
@@ -76,11 +92,18 @@ Track::Track(QObject *parent, QJsonObject json, QString& context_uri)
   impl.reset(new Implementation(this, json, context_uri));
 }
 
+Track::Track(QObject *parent, QJsonObject json)
+  : QObject(parent)
+{
+  impl.reset(new Implementation(this, json));
+}
+
 Track::~Track() {}
 
 QString Track::id() const { return impl->id; }
 QString Track::name() const { return impl->name; }
 QString Track::album() const { return impl->album; }
+const QString& Track::album_id() const { return impl->album_id; }
 const QString& Track::img_url() const { return impl->img_url; }
 const QString& Track::imgFileName() const { return impl->imgFileName; }
 const QString& Track::context_uri() const { return impl->context_uri; }

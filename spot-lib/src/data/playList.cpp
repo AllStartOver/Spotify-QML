@@ -44,7 +44,6 @@ public:
 
 PlayList::PlayList(QObject *parent, QJsonObject json)
 {
-  qDebug() << "PlayLIst::PlayList()";
   impl.reset(new Implementation(this, json));
 }
 

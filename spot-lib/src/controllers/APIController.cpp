@@ -19,6 +19,11 @@ PlayListsAPI* APIController::getPlayListsAPI()
   return m_playListsAPI;
 }
 
+AlbumAPI* APIController::getAlbumAPI()
+{
+  return m_albumAPI;
+}
+
 APIController::APIController()
 {
 }
@@ -31,6 +36,7 @@ void APIController::init(QString& access_token)
 {
   m_playerAPI = new PlayerAPI(instance(), access_token);
   m_playListsAPI = new PlayListsAPI(instance(), access_token);
+  m_albumAPI = new AlbumAPI(instance(), access_token);
   m_playListsAPI->getCurrentUserPlaylists();
 }
 
