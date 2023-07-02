@@ -76,6 +76,7 @@ Album* AlbumAPI::getAlbumByID(const QString &id)
 
 Album* AlbumAPI::getCurrentAlbum()
 {
+  qDebug() << "getCurrentAlbum(): currentAlbumID: " << impl->currentAlbumID;
   return impl->albums[impl->currentAlbumID];
 }
 

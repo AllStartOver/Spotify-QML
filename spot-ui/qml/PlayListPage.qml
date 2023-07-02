@@ -32,6 +32,7 @@ ListView {
     id: trackDelegate
     width: parent.width
     height: 50
+    track: modelData
 
     Component.onCompleted: {
       modelData.signalTrackRequestCover(modelData.img_url)
@@ -46,7 +47,6 @@ ListView {
     }
   }
   Component.onCompleted: {
-    console.log("current ID: " + playListsAPI.currentPlayListID)
     var id = playListsAPI.currentPlayListID
     playListTracksView.model = playListsAPI.getPlayListByID(id).tracks
   }

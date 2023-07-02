@@ -33,8 +33,8 @@ Item {
       }
       else if (page.source == Utils.QMLPath("AlbumPage.qml"))
       {
-        albumAPI.requestAlbumByID(page.id)
         pageLoader.source = page.source
+        albumAPI.requestAlbumByID(page.id)
       }
     }
   }
@@ -65,8 +65,8 @@ Item {
       }
       else if (page.source == Utils.QMLPath("AlbumPage.qml"))
       {
-        albumAPI.requestAlbumByID(page.id)
         pageLoader.source = page.source
+        albumAPI.requestAlbumByID(page.id)
       }
     }
   }

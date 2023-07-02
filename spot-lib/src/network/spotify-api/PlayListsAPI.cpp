@@ -37,7 +37,6 @@ public:
     if (!playLists[id]->isEmpty())
     {
       emit parent->signalGetPlayListTracksFinished(id);
-      qDebug() << "playlist already loaded";
       currentPlayListID = id;
       return;
     }

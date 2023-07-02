@@ -5,6 +5,7 @@ import Views 1.0
 import Styles 1.0
 
 Rectangle {
+  property var track
   color: Style.colorSpotifyDarkGray
 
   Text {
@@ -34,7 +35,7 @@ Rectangle {
     anchors.verticalCenter: parent.verticalCenter
     anchors.verticalCenterOffset: -7
     width: parent.width * 0.41
-    text: modelData.name
+    text: track.name
     leftPadding: 10
     color: "white"
   }
@@ -49,7 +50,7 @@ Rectangle {
     width: parent.width * 0.35
     height: 10
     orientation: ListView.Horizontal
-    model: modelData.artists
+    model: track.artists
     delegate: Row {
       Text {
         font.pixelSize: 12
@@ -71,7 +72,7 @@ Rectangle {
     anchors.verticalCenter: parent.verticalCenter
     z: 2
     width: parent.width * 0.25
-    text: modelData.album
+    text: track.album
     font.bold: true
     color: "white"
     opacity: albumMouseArea.containsMouse ? 1 : 0.5
@@ -82,8 +83,8 @@ Rectangle {
       hoverEnabled: true
       preventStealing: true
       onClicked: {
-        viewController.signalChangeAlbumSource(Utils.QMLPath("AlbumPage.qml"), modelData.album_id)
-        albumAPI.requestAlbumByID(modelData.album_id)
+        albumAPI.requestAlbumByID(track.album_id)
+        viewController.signalChangeAlbumSource(Utils.QMLPath("AlbumPage.qml"), track.album_id)
       }
     }
   }
@@ -103,7 +104,7 @@ Rectangle {
     anchors.left: addDate.right
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width * 0.15
-    text: modelData.duration_ms
+    text: track.duration_ms
     font.pixelSize: 12
     color: "gray"
   }
@@ -113,8 +114,7 @@ Rectangle {
     z: 1
     hoverEnabled: true
     onDoubleClicked: {
-      console.log("Double Clicked " + modelData.name)
-      playerAPI.startPlayback(modelData.context_uri, index)
+      playerAPI.startPlayback(track.context_uri, index)
     }
     onEntered: {
     }
@@ -124,9 +124,9 @@ Rectangle {
   }
 
   Connections {
-    target: modelData
+    target: track
     function onSignalTrackRequestCoverFinished() {
-      trackCover.source = "file:///" + executablePath + "/" + modelData.imgFileName
+      trackCover.source = "file:///" + executablePath + "/" + track.imgFileName
     }
   }
 }

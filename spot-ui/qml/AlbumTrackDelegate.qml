@@ -48,7 +48,7 @@ Rectangle {
     onDoubleClicked: {
       console.log("double clicked" + track.name)
       var album = albumAPI.getCurrentAlbum()
-      // playerAPI.startPlayback(album.uri, index)
+      playerAPI.startPlayback(album.uri, index)
     }
   }
 }

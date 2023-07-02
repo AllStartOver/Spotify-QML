@@ -37,12 +37,9 @@ ListView {
   Connections {
     target: albumAPI
     function onSignalRequestAlbumByIDFinished() {
-      var album = albumAPI.getAlbumByID(albumAPI.currentAlbumID)
-      albumTracksView.model = album.tracks
+      console.log("onSignalRequestAlbumByIDFinished" + ", " + albumAPI.currentAlbumID)
+      console.log(albumAPI.getCurrentAlbum().name)
+      albumTracksView.model = albumAPI.getCurrentAlbum().tracks
     }
-  }
-  Component.onCompleted: {
-    var album = albumAPI.getAlbumByID(albumAPI.currentAlbumID)
-    albumTracksView.model = album.tracks  
   }
 }
