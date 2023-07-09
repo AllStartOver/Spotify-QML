@@ -37,6 +37,20 @@ set(images
   "SearchGray.svg"
   "SearchWhite.svg"
   "SearchFocus.svg"
+  "Back.svg"
+  "Forward.svg"
+  "PlayGreen.svg"
+  "PauseGreen.svg"
+  "TrackPlay.svg"
+  "TrackPlayGreen.svg"
+  "TrackPause.svg"
+  "AudioWave.svg"
+  "VolumnMuteWhite.svg"
+  "PlaylistPlayGreen.svg"
+  "PlaylistPauseWhite.svg"
+  "LibraryWhite.svg"
+  "FilterBack.svg"
+  "FilterForward.svg"
 )
 
 qt_add_qml_module(ImagesLib

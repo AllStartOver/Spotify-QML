@@ -7,7 +7,8 @@ import Styles 1.0
 Rectangle {
   property alias playListCoverSource: playListCover.source;
   property var playList;
-  color: Style.colorSpotifyDarkGray
+  property bool isPlaying : playList.uri === playerState.uri
+  color: playListMouseArea.containsMouse ? Style.colorSpotifyLightGray : Style.colorSpotifyDarkGray
 
   Image {
     id: playListCover
@@ -26,7 +27,7 @@ Rectangle {
     anchors.verticalCenter: parent.verticalCenter
     anchors.verticalCenterOffset: -10
     text: playList.name
-    color: "white"
+    color: isPlaying ? Style.colorSpotifyGreen : Style.colorSpotifyWhite
   }
 
   Text {
@@ -40,8 +41,28 @@ Rectangle {
     color: "gray"
   }
 
+  Image {
+    id: playListPlaying
+    width: 16
+    height: width
+    anchors.right: parent.right
+    anchors.rightMargin: 10
+    anchors.verticalCenter: parent.verticalCenter
+    source: playListPlayingMouseArea.containsMouse ? Utils.ImagePath("PlaylistPauseWhite.svg") : Utils.ImagePath("PlaylistPlayGreen.svg") 
+    visible: isPlaying
+
+    MouseArea {
+      id: playListPlayingMouseArea
+      anchors.fill: parent
+      hoverEnabled: true
+    }
+  }
+
   MouseArea {
+    id: playListMouseArea
     anchors.fill: parent
+    hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
     onClicked: {
       viewController.signalChangePlayListSource(Utils.QMLPath("PlayListPage.qml"), playList.id)
       playList.signalPlayListRequestTracks(playList.id)
@@ -52,9 +73,15 @@ Rectangle {
     playList.signalPlayListRequestCover(playList.img_url, playList.id)
   }   
   Connections {
-    target: modelData
+    target: playList
     function onSignalPlayListRequestCoverFinished() {
       playListCoverSource = "file:///" + executablePath + "/" + playList.imgFileName;
+    }
+  }
+  Connections {
+    target: playerState
+    function onSignalContextChanged() {
+      isPlaying = playerState.uri == playList.uri
     }
   }
 }

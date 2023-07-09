@@ -46,6 +46,8 @@ set(qml_files
     "qml/MasterPage.qml"
     "qml/HomePage.qml"
     "qml/NavigationView.qml"
+    "qml/LibraryView.qml"
+    "qml/FilterView.qml"
     "qml/Utils.js"
 )
 

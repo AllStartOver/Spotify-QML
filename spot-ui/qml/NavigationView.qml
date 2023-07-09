@@ -36,7 +36,7 @@ Rectangle {
       font.bold: true
       color: homeIconMouseArea.isFocused ?
         Style.colorSpotifyWhite : homeIconMouseArea.containsMouse ?
-        Style.colorSpotifyWhite : Style.colorSpotifyLightGray
+        Style.colorSpotifyWhite : Style.colorSpotifyLightWhite
     }
     MouseArea {
       property bool isFocused: false
@@ -77,7 +77,7 @@ Rectangle {
       font.bold: true
       color: searchIconMouseArea.isFocused ?
         Style.colorSpotifyWhite : searchIconMouseArea.containsMouse ?
-        Style.colorSpotifyWhite : Style.colorSpotifyLightGray
+        Style.colorSpotifyWhite : Style.colorSpotifyLightWhite
     }
     MouseArea {
       property bool isFocused: false

@@ -25,6 +25,8 @@ public:
 
 signals:
   void signalRequestAlbumByIDFinished();
+  void signalCurrentAlbumChanged();
+  void signalAlbumRequestCoverFinished();
   void signalMock();
 
 private:

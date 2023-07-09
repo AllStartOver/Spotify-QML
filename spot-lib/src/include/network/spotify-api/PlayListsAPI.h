@@ -6,6 +6,7 @@
 #include <QQmlListProperty>
 #include <QNetworkReply>
 #include <QnetworkRequest>
+#include <QImage>
 
 #include "network/spotify-api/BaseAPI.h"
 #include "data/playList.h"
@@ -25,11 +26,11 @@ public:
   ~PlayListsAPI() override;
 
   QQmlListProperty<PlayList> playLists();
-
-  void getCurrentUserPlaylists();
+  Q_INVOKABLE void getCurrentUserPlaylists();
   void getPlayListTracks(const QString &id);
   Q_INVOKABLE PlayList* getPlayListByID(const QString &id);
   Q_INVOKABLE QString& currentPlayListID();
+  Q_INVOKABLE void calculateAverageCoverColor(const QString &id);
 
 public slots:
 

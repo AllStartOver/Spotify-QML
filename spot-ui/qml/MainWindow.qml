@@ -39,7 +39,7 @@ Window {
     anchors.bottomMargin: 10
   }
 
-  Rectangle {
+  LibraryView {
     id: playerLists
     anchors.left: parent.left
     anchors.top: navigation.bottom
@@ -48,30 +48,7 @@ Window {
     anchors.topMargin: 10
     anchors.rightMargin: 10
     anchors.bottomMargin: 10
-    radius: 5
     width: parent.width / 5
-    color: Style.colorSpotifyDarkGray
-
-    ListView {
-      id: playListsListView
-      anchors.topMargin: 10
-      anchors.fill: parent
-      model: playListsAPI.playLists
-
-      delegate: PlayListDelegate {
-        id: playListItem
-        width: parent.width
-        height: 70
-        playList: modelData
-      }
-      Connections {
-        target: playListsAPI
-        function onSignalGetCurrentUserPlaylistsFinished() {
-          console.log("onSignalGetCurrentUserPlaylistsFinished" + playListsAPI.playLists.length)
-          playListsListView.model = playListsAPI.playLists
-        }
-      }
-    }
   }
 
   Player {

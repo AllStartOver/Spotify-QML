@@ -12,13 +12,13 @@ public:
 
   void updateBasicStates(QJsonObject json)
   {
-    qDebug() << "updateBasicStates() called";
+    qDebug() << "PlayerState::updateBasicStates() called";
     feed_json(json);
   }
 
   void updateFullStates(QJsonObject json)
   {
-    qDebug() << "updateFullStates() called";
+    qDebug() << "PlayerState::updateFullStates() called";
     if (json["item"].toObject()["name"].toString() == trackName)
     {
       emit parent->signalPlayerStateRemainsSame(true);
@@ -32,7 +32,10 @@ public:
 
     // Track Info
     trackName = json["item"].toObject()["name"].toString();
+    trackID = json["item"].toObject()["id"].toString();
+    uri = json["context"].toObject()["uri"].toString();
 
+    qDebug() << "PlayerState::feed_json() trackName: " << trackName << " trackID: " << trackID << " uri: " << uri;
     // Devices
     currentDeviceId = json["device"].toObject()["id"].toString();
     currentDeviceName = json["device"].toObject()["name"].toString();
@@ -57,11 +60,20 @@ public:
     }
 
     // Update the Image
-    imageURL = json["item"].toObject()["album"].toObject()["images"].toArray()[0].toObject()["url"].toString();
+    if (json["item"].toObject()["album"].toObject()["images"].toArray().size() == 0)
+    {
+      qDebug() << "PlayerState::feed_json() image not found";
+      return;
+    }
+    else {
+      qDebug() << "PlayerState::feed_json() image found";
+      imageURL = json["item"].toObject()["album"].toObject()["images"].toArray()[0].toObject()["url"].toString();
+    }
     emit parent->signalRequestImage(imageURL);
 
     qDebug() << "PlayerState::feed_json() finished";
     emit parent->signalPlayerStateUpdated();
+    emit parent->signalContextChanged();
   }
 
   PlayerState* parent;
@@ -78,6 +90,8 @@ public:
   QString loopMode;
 
   QString trackName;
+  QString trackID;
+  QString uri;
   QString imageURL;
 
   QList<Artist*> artists;
@@ -86,8 +100,8 @@ public:
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-PlayerState::PlayerState()
-  : QObject(nullptr)
+PlayerState::PlayerState(QObject* parent)
+  : QObject(parent)
 {
   impl.reset(new Implementation(this));
 }
@@ -150,6 +164,16 @@ QString PlayerState::loopMode() const
 QString PlayerState::trackName() const
 {
   return impl->trackName;
+}
+
+const QString& PlayerState::trackID() const
+{
+  return impl->trackID;
+}
+
+const QString& PlayerState::uri() const
+{
+  return impl->uri;
 }
 
 

@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QList>
+#include <QImage>
 #include <QQmlListProperty>
 
 #include "data/track.h"
@@ -24,6 +25,8 @@ class PlayList : public QObject
   Q_PROPERTY(QString img_url READ img_url CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
   Q_PROPERTY(QString tracks_href READ tracks_href CONSTANT)
+  Q_PROPERTY(QString uri READ uri CONSTANT)
+  Q_PROPERTY(QString averageCoverColor READ averageCoverColor CONSTANT)
   Q_PROPERTY(QQmlListProperty<Track> tracks READ tracks CONSTANT)
 public:
   explicit PlayList(QObject *parent, QJsonObject json);
@@ -37,10 +40,13 @@ public:
   QString owner() const;
   QString& imgFileName();
   const QString& uri() const;
+  QString& averageCoverColor();
 
   QQmlListProperty<Track> tracks();
 
   void loadTracksFromJson(QJsonObject json);
+
+  Q_INVOKABLE void calculateAverageCoverColor();
 
   bool isEmpty() const;
 

@@ -28,6 +28,7 @@ class Track : public QObject
   Q_PROPERTY(QString img_url READ img_url CONSTANT)
   Q_PROPERTY(QString context_uri READ context_uri CONSTANT)
   Q_PROPERTY(int duration_ms READ duration_ms CONSTANT)
+  Q_PROPERTY(int popularity READ popularity CONSTANT)
   Q_PROPERTY(QQmlListProperty<Artist> artists READ artists CONSTANT)
 public:
   explicit Track(QObject* parent, QJsonObject json, QString& context_uri);
@@ -44,6 +45,7 @@ public:
   const QString& context_uri() const;
 
   int duration_ms() const;
+  int popularity() const;
 
   QQmlListProperty<Artist> artists();
 

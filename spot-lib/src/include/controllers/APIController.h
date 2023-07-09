@@ -5,6 +5,7 @@
 #include "network/spotify-api/PlayListsAPI.h"
 #include "network/spotify-api/PlayerAPI.h"
 #include "network/spotify-api/AlbumAPI.h"
+#include "network/spotify-api/ArtistAPI.h"
 
 using namespace libspot::network::API;
 namespace libspot {
@@ -21,6 +22,7 @@ public:
   PlayerAPI* getPlayerAPI();
   PlayListsAPI* getPlayListsAPI();
   AlbumAPI* getAlbumAPI();
+  ArtistAPI* getArtistAPI();
 
 private:
   APIController();
@@ -28,5 +30,6 @@ private:
   PlayerAPI* m_playerAPI;
   PlayListsAPI* m_playListsAPI;
   AlbumAPI* m_albumAPI;
+  ArtistAPI* m_artistAPI;
 };
 }}

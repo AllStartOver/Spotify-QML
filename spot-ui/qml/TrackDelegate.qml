@@ -5,19 +5,55 @@ import Views 1.0
 import Styles 1.0
 
 Rectangle {
+  id: root
   property var track
-  color: Style.colorSpotifyDarkGray
+  property bool bgContainsMouse: false
+  property bool isPlaying : playerState.uri === track.context_uri && playerState.trackID === track.id
+  property bool isPaused: false
+  color: bgContainsMouse ? Style.colorSpotifyLightGray : Style.colorSpotifyDarkGray
 
-  Text {
+  Rectangle {
     id: trackIndex
+    z: 2
     anchors.left: parent.left
-    anchors.leftMargin: 20
     anchors.verticalCenter: parent.verticalCenter
-    width: parent.width * 0.03
-    font.pixelSize: 14
-    clip: true
-    text: index + 1
-    color: "white"
+    height: parent.width * 0.05
+    width: parent.width * 0.05
+    color: "transparent"
+    Text {
+      anchors.centerIn: parent
+      font.pixelSize: 14
+      clip: true
+      text: index + 1
+      color: "white"
+      visible: isPlaying? false : bgContainsMouse? false : true
+    }
+
+    Image {
+      anchors.centerIn: parent
+      width: 12
+      height: width
+      source: !isPlaying || isPaused ? Utils.ImagePath("TrackPlay.svg") : bgContainsMouse? Utils.ImagePath("PlaylistPauseWhite.svg") : Utils.ImagePath("PlaylistPlayGreen.svg")
+      visible: isPlaying ? true : bgContainsMouse? true : false
+    }
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: {
+        if (isPlaying) {
+          if (isPaused) {
+            playerAPI.resumePlayback()
+            isPaused = false
+            return 
+          } else {
+            playerAPI.pausePlayback()
+            isPaused = true
+            return 
+          }
+        }
+        playerAPI.startPlayback(track.context_uri, index)
+      }
+    }
   }
 
   Image {
@@ -30,14 +66,16 @@ Rectangle {
 
   Text {
     id: trackName
-    font.pixelSize: 12
     anchors.left: trackCover.right
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: -7
-    width: parent.width * 0.41
+    anchors.leftMargin: 10
+    anchors.top: trackCover.top
+    anchors.topMargin: 5
+    width: parent.width * 0.3
     text: track.name
-    leftPadding: 10
-    color: "white"
+    font.weight: Font.DemiBold
+    font.pixelSize: 12
+    color: isPlaying? Style.colorSpotifyGreen : Style.colorSpotifyWhite
+    elide: Text.ElideRight
   }
 
   ListView {
@@ -45,8 +83,8 @@ Rectangle {
     visible: true
     anchors.left: trackCover.right
     anchors.leftMargin: 10
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: 7
+    anchors.bottom: trackCover.bottom
+    anchors.bottomMargin: 5
     width: parent.width * 0.35
     height: 10
     orientation: ListView.Horizontal
@@ -55,33 +93,35 @@ Rectangle {
       Text {
         font.pixelSize: 12
         text: modelData.name
-        color: "gray"
+        color: bgContainsMouse ? Style.colorSpotifyWhite : Style.colorSpotifyLightWhite
       }
       Text {
         font.pixelSize: 12
         text: index < trackArtists.count - 1 ? ", " : ""
-        color: "gray"
+        color: bgContainsMouse ? Style.colorSpotifyWhite : Style.colorSpotifyLightWhite
       }
     }
   }
 
   Text {
     id: albumName
-    font.pixelSize: 14
-    anchors.left: trackName.right
-    anchors.verticalCenter: parent.verticalCenter
     z: 2
+    anchors.left: trackName.right
+    anchors.leftMargin: 30
+    anchors.verticalCenter: parent.verticalCenter
     width: parent.width * 0.25
     text: track.album
-    font.bold: true
-    color: "white"
-    opacity: albumMouseArea.containsMouse ? 1 : 0.5
+    font.bold: Font.DemiBold
+    font.pixelSize: 12
+    font.underline: albumMouseArea.containsMouse
+    elide: Text.ElideRight
+    color: bgContainsMouse ? Style.colorSpotifyWhite : Style.colorSpotifyLightWhite
 
     MouseArea {
       id: albumMouseArea
       anchors.fill: albumName
       hoverEnabled: true
-      preventStealing: true
+      cursorShape: Qt.PointingHandCursor
       onClicked: {
         albumAPI.requestAlbumByID(track.album_id)
         viewController.signalChangeAlbumSource(Utils.QMLPath("AlbumPage.qml"), track.album_id)
@@ -90,36 +130,28 @@ Rectangle {
   }
 
   Text {
-    id: addDate
-    anchors.left: albumName.right
-    anchors.verticalCenter: parent.verticalCenter
-    width: parent.width * 0.15
-    text: "Mock Add Date"
-    font.pixelSize: 12
-    color: "gray"
-  }
-
-  Text {
     id: duration
-    anchors.left: addDate.right
+    anchors.right: parent.right
+    anchors.rightMargin: 30
     anchors.verticalCenter: parent.verticalCenter
-    width: parent.width * 0.15
-    text: track.duration_ms
+    text: Utils.formatTime(track.duration_ms % 1000)
     font.pixelSize: 12
-    color: "gray"
+    color: Style.colorSpotifyLightWhite
   }
 
   MouseArea {
+    id: trackMouseArea
     anchors.fill: parent
-    z: 1
     hoverEnabled: true
     onDoubleClicked: {
       playerAPI.startPlayback(track.context_uri, index)
     }
     onEntered: {
+      bgContainsMouse = true
     }
     onExited: {
-      parent.color = Style.colorSpotifyDarkGray
+      if (albumMouseArea.containsMouse) { return }
+      bgContainsMouse = false
     }
   }
 
@@ -127,6 +159,12 @@ Rectangle {
     target: track
     function onSignalTrackRequestCoverFinished() {
       trackCover.source = "file:///" + executablePath + "/" + track.imgFileName
+    }
+  }
+  Connections {
+    target: playerState
+    function onSignalContextChanged() {
+      isPlaying = playerState.uri === track.context_uri && playerState.trackID === track.id
     }
   }
 }

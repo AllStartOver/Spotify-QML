@@ -27,6 +27,7 @@ public:
   QString owner;
   QString imgFileName;
   QString uri;
+  QString averageCoverColor;
   QList<Track*> tracks;
 
   void loadTracksFromJson(QJsonObject json)
@@ -36,6 +37,35 @@ public:
       auto track = new Track(parent, item.toObject()["track"].toObject(), uri);
       tracks.append(track);
     }
+  }
+
+  void calculateAverageCoverColor()
+  {
+    if (imgFileName.isEmpty()) {
+      qDebug() << "Album::calculateAverageCoverColor: imgFileName is empty";
+      return;
+    }
+    QImage img(imgFileName);
+    if (img.isNull()) {
+      qDebug() << "Album::calculateAverageCoverColor: img is null";
+      return;
+    }
+    int r = 0, g = 0, b = 0;
+    int count = 0;
+    for (int x = 0; x < img.width(); x += 10) {
+      for (int y = 0; y < img.height(); y += 10) {
+        QColor color = img.pixelColor(x, y);
+        r += color.red();
+        g += color.green();
+        b += color.blue();
+        count++;
+      }
+    }
+    r /= count;
+    g /= count;
+    b /= count;
+    averageCoverColor = QColor(r, g, b).name();
+    qDebug() << "PlayList::calculateAverageCoverColor: " << averageCoverColor;
   }
 };
 
@@ -58,6 +88,7 @@ QString PlayList::tracks_href() const { return impl->tracks_href; }
 QString PlayList::owner() const { return impl->owner; }
 QString& PlayList::imgFileName() { return impl->imgFileName; }
 const QString& PlayList::uri() const { return impl->uri; }
+QString& PlayList::averageCoverColor() { return impl->averageCoverColor; }
 
 QQmlListProperty<Track> PlayList::tracks()
 {
@@ -69,6 +100,11 @@ QQmlListProperty<Track> PlayList::tracks()
 void PlayList::loadTracksFromJson(QJsonObject json)
 {
   return impl->loadTracksFromJson(json);
+}
+
+void PlayList::calculateAverageCoverColor()
+{
+  return impl->calculateAverageCoverColor();
 }
 
 bool PlayList::isEmpty() const { return impl->tracks.isEmpty(); }

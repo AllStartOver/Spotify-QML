@@ -20,8 +20,17 @@ public:
       artists.append(new Artist(parent, artist.toObject()));
     }
     duration_ms = json["duration_ms"].toInt();
-    QJsonArray img_urls = json["album"].toObject()["images"].toArray();
-    img_url = img_urls[img_urls.size() - 1].toObject()["url"].toString();
+    popularity = json["popularity"].toInt();
+
+    // Image
+    if(json["album"].toObject()["images"].toArray().size() == 0) {
+      return;
+    }
+    else {
+      QJsonArray images = json["album"].toObject()["images"].toArray();
+      img_url = images[images.size()-1].toObject()["url"].toString();
+    }
+
     QObject::connect(parent, &Track::signalTrackRequestCover, [=](const QString& url) {
       getTrackCover(url);
     });
@@ -38,6 +47,7 @@ public:
       artists.append(new Artist(parent, artist.toObject()));
     }
     duration_ms = json["duration_ms"].toInt();
+    popularity = json["popularity"].toInt();
   }
 
   QNetworkAccessManager *manager = NetworkManager::instance().getNetworkManager();
@@ -50,6 +60,7 @@ public:
   QString imgFileName;
   QString context_uri;
   int duration_ms;
+  int popularity;
   QList<Artist*> artists;
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -108,6 +119,7 @@ const QString& Track::img_url() const { return impl->img_url; }
 const QString& Track::imgFileName() const { return impl->imgFileName; }
 const QString& Track::context_uri() const { return impl->context_uri; }
 int Track::duration_ms() const { return impl->duration_ms; }
+int Track::popularity() const { return impl->popularity; }
 
 QQmlListProperty<Artist> Track::artists()
 {

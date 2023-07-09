@@ -20,10 +20,12 @@ class PlayerState : public QObject
   Q_PROPERTY(bool isShuffling READ isShuffling)
   Q_PROPERTY(QString loopMode READ loopMode)
   Q_PROPERTY(QString trackName READ trackName CONSTANT)
+  Q_PROPERTY(QString trackID READ trackID CONSTANT)
+  Q_PROPERTY(QString uri READ uri CONSTANT)
 
   Q_PROPERTY(QQmlListProperty<Artist> artists READ artists)
 public:
-  PlayerState();
+  explicit PlayerState(QObject* parent = nullptr);
   ~PlayerState();
 
   void updateBasicStates(QJsonObject json);
@@ -42,6 +44,8 @@ public:
   QString loopMode() const;
 
   QString trackName() const;
+  const QString& trackID() const;
+  const QString& uri() const;
   QQmlListProperty<Artist> artists();
 
 signals:
@@ -49,6 +53,7 @@ signals:
   void signalPlayerStateRemainsSame(bool forceTrackUpdate);
   void signalRequestImage(QString url);
   void signalRequestImageFinished(QString imgPath);
+  void signalContextChanged();
 
 private:
   class Implementation;

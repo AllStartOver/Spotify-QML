@@ -18,6 +18,13 @@ public:
     requestPlayerState(true);
   }
 
+  PlayerAPI* parent;
+  QNetworkAccessManager* manager;
+
+  QString baseURL = "https://api.spotify.com/v1/me/player";
+  QString &access_token;
+  libspot::data::PlayerState playerState;
+
   void requestPlayerState(bool forceTrackUpdate)
   {
     QString endpoint = "";
@@ -28,9 +35,15 @@ public:
 
   void requestImage(QString url)
   {
+    QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
+    if (QFile::exists(fileName))
+    {
+      qDebug() << "PlayerAPI::requestImage: file exists";
+      emit playerState.signalRequestImageFinished(fileName);
+      return;
+    }
     QNetworkRequest request(url);
     QNetworkReply *reply = manager->get(request);
-    QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, fileName = fileName, this]() { onRequestImage(reply, fileName); });
   }
 
@@ -137,11 +150,7 @@ public:
 
   void onRequestImage(QNetworkReply* reply, QString fileName)
   {
-    int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    qDebug() << "Status: " << status;
-    if(reply->error() != QNetworkReply::NoError) 
-    {
-      qDebug() << "Error: " << reply->errorString();
+    if (!parent->log(reply, "Request image")) {
       reply->deleteLater();
       return;
     }
@@ -218,19 +227,13 @@ public:
 
     return request;
   }
-
-  PlayerAPI* parent;
-  QNetworkAccessManager* manager;
-
-  QString baseURL = "https://api.spotify.com/v1/me/player";
-  QString &access_token;
-  libspot::data::PlayerState playerState;
 };
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 PlayerAPI::PlayerAPI(QObject *parent, QString &access_token)
+  : BaseAPI(parent)
 {
   impl.reset(new Implementation(this, access_token));
 }
@@ -290,6 +293,9 @@ void PlayerAPI::setLoopMode(QString mode)
 {
   return impl->setLoopMode(mode);
 }
+
+// GETTERS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 QString& PlayerAPI::getCurrentDeviceId() const
 {

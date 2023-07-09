@@ -19,7 +19,10 @@ class BaseAPI : public QObject
 {
   Q_OBJECT
 public:
-  BaseAPI(){};
+  explicit BaseAPI(QObject* parent)
+    : QObject(parent)
+  {
+  };
   virtual ~BaseAPI() {}
 
   bool log(QNetworkReply* reply, QString endpoint)

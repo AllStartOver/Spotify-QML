@@ -23,6 +23,7 @@ class Album : public QObject
   Q_PROPERTY(QString img_url READ img_url CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
   Q_PROPERTY(QString uri READ uri CONSTANT)
+  Q_PROPERTY(QString averageCoverColor READ averageCoverColor CONSTANT)
   Q_PROPERTY(QQmlListProperty<Track> tracks READ tracks CONSTANT)
 public:
   explicit Album(QObject *parent, QJsonObject json);
@@ -32,12 +33,15 @@ public:
   const QString& id() const;
   const QString& name() const;
   const QString& img_url() const;
-  const QString& imgFileName() const;
   const QString& uri() const;
+  QString& imgFileName();
+  const QString& averageCoverColor() const;
 
   QQmlListProperty<Track> tracks();
 
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@
+
+  Q_INVOKABLE void calculateAverageCoverColor();
 
   bool isEmpty() const;
 
@@ -50,6 +54,5 @@ private:
   class Implementation;
   QScopedPointer<Implementation> impl;
 };
-
 
 }}
