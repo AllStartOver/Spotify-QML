@@ -51,6 +51,7 @@ set(images
   "LibraryWhite.svg"
   "FilterBack.svg"
   "FilterForward.svg"
+  "FilterCross.svg"
 )
 
 qt_add_qml_module(ImagesLib

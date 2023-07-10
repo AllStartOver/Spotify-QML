@@ -38,109 +38,17 @@ Rectangle {
       }
 
       FilterView {
-        id: filterFlickable
+        id: filter
         height: 30
         anchors.top: libraryImage.bottom
         anchors.topMargin: 20
         anchors.left: parent.left
-        anchors.leftMargin: 10
         anchors.right: parent.right
-        anchors.rightMargin: 10
-        clip: true
-        interactive: true
-      }
-
-      Rectangle {
-        id: filterBackGradient
-        anchors.left: filterBack.left
-        anchors.top: filterBack.top
-        anchors.bottom: filterBack.bottom
-        width: filterBack.width + 30
-        visible: filterFlickable.contentX > 0 
-
-        gradient: Gradient {
-          orientation: Gradient.Horizontal
-          GradientStop {
-            position: 0
-            color: Style.colorSpotifyDarkGray
-          }
-          GradientStop {
-            position: 1
-            color: "transparent"
-          }
-        }
-      }
-      Image {
-        id: filterBack
-        anchors.left: filterFlickable.left
-        anchors.verticalCenter: filterFlickable.verticalCenter
-        width: 35
-        height: width
-        source: Utils.ImagePath("FilterBack.svg")
-        visible: filterFlickable.contentX > 0
-        MouseArea {
-          anchors.fill: parent
-          cursorShape: Qt.PointingHandCursor
-          onClicked: {
-            filterBackAnimation.start()
-          }
-        }
-        PropertyAnimation {
-          id: filterBackAnimation
-          target: filterFlickable
-          property: "contentX"
-          duration: 500
-          to: 0
-        }
-      }
-
-      Rectangle {
-        id: filterForwardGradient
-        anchors.right: filterForward.right
-        anchors.top: filterForward.top
-        anchors.bottom: filterForward.bottom
-        width: filterForward.width + 30
-        visible: filterFlickable.contentX < filterFlickable.contentWidth - filterFlickable.width
-
-        gradient: Gradient {
-          orientation: Gradient.Horizontal
-          GradientStop {
-            position: 0
-            color: "transparent"
-          }
-          GradientStop {
-            position: 1
-            color: Style.colorSpotifyDarkGray
-          }
-        }
-      }
-
-      Image {
-        id: filterForward
-        anchors.right: filterFlickable.right
-        anchors.verticalCenter: filterFlickable.verticalCenter
-        width: 35
-        height: width
-        source: Utils.ImagePath("FilterForward.svg")
-        visible: filterFlickable.contentX < filterFlickable.contentWidth - filterFlickable.width
-        MouseArea {
-          anchors.fill: parent
-          cursorShape: Qt.PointingHandCursor
-          onClicked: {
-            filterForwardAnimation.start()
-          }
-        }
-        PropertyAnimation {
-          id: filterForwardAnimation
-          target: filterFlickable
-          property: "contentX"
-          duration: 500
-          to: filterFlickable.contentWidth - filterFlickable.width
-        }
       }
       Image {
         id: searhButton
-        anchors.left: filterFlickable.left
+        anchors.left: filter.left
+        anchors.leftMargin: 10
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 20
         width: 20
@@ -148,15 +56,34 @@ Rectangle {
         source: Utils.ImagePath("SearchGray.svg")
       }
     }
-    delegate: PlayListDelegate {
-      width: parent.width
+
+    delegate: Loader {
+      id: delegateLoader
       height: 70
-      playList: modelData
+      width: parent.width
+      source: Utils.QMLPath("PlayListDelegate.qml")
+
+      Connections {
+        target: artistAPI
+        function onSignalRequestUserFollowedArtistsFinished() {
+          delegateLoader.source = Utils.QMLPath("ArtistDelegate.qml")
+        }
+      }
     }
     Connections {
       target: playListsAPI
       function onSignalGetCurrentUserPlaylistsFinished() {
         libraryListView.model = playListsAPI.playLists
+      }
+    }
+    Connections {
+      target: viewController
+      function onSignalChangeLibrary(lib) {
+        if (lib === "Playlists") {
+          playListsAPI.getCurrentUserPlaylists()
+        } else if (lib === "Artists") {
+          artistAPI.requestUserFollowedArtists()
+        }
       }
     }
     Component.onCompleted: {

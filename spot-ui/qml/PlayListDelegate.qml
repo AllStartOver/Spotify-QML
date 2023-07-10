@@ -6,7 +6,7 @@ import Styles 1.0
 
 Rectangle {
   property alias playListCoverSource: playListCover.source;
-  property var playList;
+  property var playList: modelData
   property bool isPlaying : playList.uri === playerState.uri
   color: playListMouseArea.containsMouse ? Style.colorSpotifyLightGray : Style.colorSpotifyDarkGray
 

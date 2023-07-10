@@ -12,15 +12,17 @@ namespace API {
 class ArtistAPI : public BaseAPI
 {
   Q_OBJECT 
+  Q_PROPERTY(QQmlListProperty<ArtistPage> artistPages READ artistPages CONSTANT)
 public: 
   explicit ArtistAPI(QObject *parent, QString &access_token);
   ~ArtistAPI() override;
 
-  void requestUserFollowedArtists();
+  Q_INVOKABLE void requestUserFollowedArtists();
 
   QQmlListProperty<ArtistPage> artistPages();
 
 signals:
+  void signalRequestUserFollowedArtistsFinished();
   void signalRequestArtistByIDFinished();
 
 private: 

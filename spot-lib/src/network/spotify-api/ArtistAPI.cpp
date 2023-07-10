@@ -24,6 +24,11 @@ public:
   // MEMBER FUNC @@@@@@@@@@@@@@@@@@@@@@@
   void requestUserFollowedArtists()
   {
+    if (!artistPages.isEmpty())
+    {
+      emit parent->signalRequestUserFollowedArtistsFinished();
+      return;
+    }
     QString endpoint = "me/following?type=artist";
     QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
     QNetworkReply* reply = manager->get(request);
@@ -46,6 +51,7 @@ public:
       int index = artistPages.indexOf(artistPage); 
       artistPagesMap.insert(artistPage->id(), index);
     }
+    emit parent->signalRequestUserFollowedArtistsFinished();
   }
 };
 
