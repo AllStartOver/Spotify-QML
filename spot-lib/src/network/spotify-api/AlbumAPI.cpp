@@ -21,7 +21,22 @@ public:
   QNetworkAccessManager* manager = NetworkManager::instance().getNetworkManager();
   QMap<QString, int> albumsMap;
   QList<Album*> albums;
+  QMap<QString, int> userSavedAlbumsMap;
+  QList<Album*> userSavedAlbums;
   QString currentAlbumID;
+
+  void requestUserSavedAlbums()
+  {
+    if (userSavedAlbums.size() > 0)
+    {
+      emit parent->signalRequestUserSavedAlbumsFinished();
+      return;
+    }
+    QString endpoint = "me/albums";
+    QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
+    QNetworkReply *reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onRequestUserSavedAlbums(reply); });
+  }
 
   void requestAlbumByID(const QString &id)
   {
@@ -52,6 +67,28 @@ public:
   }
 
   // SLOTS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  void onRequestUserSavedAlbums(QNetworkReply *reply)
+  {
+    qDebug() << "AlbumAPI::onRequestUserSavedAlbums";
+    if(!parent->log(reply, "RequestUserSavedAlbums"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    QByteArray data = reply->readAll();
+    QJsonObject json = QJsonDocument::fromJson(data).object();
+    for (auto item : json["items"].toArray())
+    {
+      Album* album = new Album(parent, item.toObject()["album"].toObject());
+      QObject::connect(album, &Album::signalAlbumRequestCover, parent, [this](const QString& url, const QString& id) { requestAlbumCover(url, id); });
+      userSavedAlbums.append(album);
+      int index = userSavedAlbums.indexOf(album);
+      userSavedAlbumsMap.insert(album->id(), index);
+    }
+    reply->deleteLater();
+    emit parent->signalRequestUserSavedAlbumsFinished();
+  }
 
   void onRequestAlbumByID(QNetworkReply *reply, const QString& id)
   {
@@ -111,6 +148,11 @@ AlbumAPI::~AlbumAPI()
 {
 }
 
+void AlbumAPI::requestUserSavedAlbums()
+{
+  return impl->requestUserSavedAlbums();
+}
+
 void AlbumAPI::requestAlbumByID(const QString &id)
 {
   return impl->requestAlbumByID(id);
@@ -130,6 +172,11 @@ Album* AlbumAPI::getCurrentAlbum()
 QString& AlbumAPI::currentAlbumID() const
 {
   return impl->currentAlbumID;
+}
+
+QQmlListProperty<Album> AlbumAPI::userSavedAlbums()
+{
+  return QQmlListProperty<Album>(this, &impl->userSavedAlbums);
 }
 
 }}}

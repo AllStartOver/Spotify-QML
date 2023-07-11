@@ -41,6 +41,7 @@ set(qml_files
     "qml/PlayListPage.qml"
     "qml/PlayListDelegate.qml"
     "qml/AlbumPage.qml"
+    "qml/AlbumDelegate.qml"
     "qml/AlbumTrackDelegate.qml"
     "qml/TrackDelegate.qml"
     "qml/ArtistDelegate.qml"

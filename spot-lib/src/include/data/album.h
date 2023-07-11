@@ -18,6 +18,7 @@ class Track;
 class Album : public QObject
 {
   Q_OBJECT
+  Q_PROPERTY(QString type READ type CONSTANT)
   Q_PROPERTY(QString id READ id CONSTANT)
   Q_PROPERTY(QString name READ name CONSTANT)
   Q_PROPERTY(QString img_url READ img_url CONSTANT)
@@ -30,6 +31,7 @@ public:
   ~Album();
 
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
+  const QString type() const { return "album"; }
   const QString& id() const;
   const QString& name() const;
   const QString& img_url() const;

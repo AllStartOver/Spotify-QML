@@ -35,6 +35,21 @@ public:
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onRequestUserFollowedArtists(reply); });
   }
 
+  void requestArtistCover(const QString& url, const QString& id)
+  {
+    QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
+    artistPages[artistPagesMap[id]]->imgFileName() = fileName;
+    if (QFile::exists(fileName))
+    {
+      qDebug() << "ArtistAPI::requestArtistCover: file exists";
+      emit artistPages[artistPagesMap[id]]->signalArtistPageRequestCoverFinished();
+      return;
+    }
+    QNetworkRequest request(url);
+    QNetworkReply* reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id, this]() { onRequestArtistCover(reply, id); });
+  }
+
   // SLOTS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   void onRequestUserFollowedArtists(QNetworkReply *reply)
   {
@@ -47,11 +62,38 @@ public:
     for (auto artist : json["artists"].toObject()["items"].toArray())
     {
       ArtistPage* artistPage = new ArtistPage(parent, artist.toObject());
+      QObject::connect(artistPage, &ArtistPage::signalArtistPageRequestCover, parent, [this](const QString& url, const QString& id) { requestArtistCover(url, id); });
       artistPages.append(artistPage);
       int index = artistPages.indexOf(artistPage); 
       artistPagesMap.insert(artistPage->id(), index);
     }
     emit parent->signalRequestUserFollowedArtistsFinished();
+  }
+
+  void onRequestArtistCover(QNetworkReply* reply, const QString& id)
+  {
+    if (!parent->log(reply, "RequestArtistCover"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    // Save the image
+    QByteArray data = reply->readAll();
+    QFile file(artistPages[artistPagesMap[id]]->imgFileName());
+    QDir dir;
+    if (!dir.exists("cache_imgs")) {
+      dir.mkpath("cache_imgs");
+    }
+    if (file.open(QIODevice::WriteOnly)) {
+      file.write(data);
+      file.close();
+      qDebug() << "write a img file to " << artistPages[artistPagesMap[id]]->imgFileName();
+      emit artistPages[artistPagesMap[id]]->signalArtistPageRequestCoverFinished();
+    }
+    else {
+      qDebug() << "Failed to open file";
+    }
+    reply->deleteLater();
   }
 };
 

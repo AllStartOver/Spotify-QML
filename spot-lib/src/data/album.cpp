@@ -16,6 +16,7 @@ public:
     for (auto track : json["tracks"].toObject()["items"].toArray()) {
       tracks.append(new Track(parent, track.toObject(), uri));
     }
+    qDebug() << "Album::Implementation: tracks.size() = " << tracks.size() << " for album " << name;
   }
   Album* parent;
   QString id;

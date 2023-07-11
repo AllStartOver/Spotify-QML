@@ -20,8 +20,10 @@ class Album;
 class ArtistPage : public QObject 
 {
   Q_OBJECT
+  Q_PROPERTY(QString type READ type CONSTANT)
   Q_PROPERTY(QString id READ id CONSTANT)
   Q_PROPERTY(QString name READ name CONSTANT)
+  Q_PROPERTY(QString imgUrl READ imgUrl CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
 
 public:
@@ -31,10 +33,11 @@ public:
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@
 
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
-
+  const QString type() const { return "artist"; }
   const QString& id() const;
   const QString& name() const;
-  const QString& imgFileName() const;  
+  const QString& imgUrl() const;
+  QString& imgFileName();
 
   QQmlListProperty<Track> tracks();
 

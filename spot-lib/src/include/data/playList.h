@@ -19,6 +19,7 @@ class Track;
 class PlayList : public QObject
 {
   Q_OBJECT
+  Q_PROPERTY(QString type READ type CONSTANT)
   Q_PROPERTY(QString id READ id CONSTANT)
   Q_PROPERTY(QString name READ name CONSTANT)
   Q_PROPERTY(QString owner READ owner CONSTANT)
@@ -33,6 +34,7 @@ public:
   ~PlayList();
 
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
+  const QString type() const;
   QString id() const;
   QString name() const;
   QString img_url() const;

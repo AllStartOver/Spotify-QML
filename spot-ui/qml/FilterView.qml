@@ -138,6 +138,7 @@ Item {
               onClicked: {
                 selectedText = albumsFilterText.text
                 loader.sourceComponent = selected
+                viewController.signalChangeLibrary("Albums")
               }
             }
           }

@@ -61,12 +61,18 @@ Rectangle {
       id: delegateLoader
       height: 70
       width: parent.width
-      source: Utils.QMLPath("PlayListDelegate.qml")
-
       Connections {
-        target: artistAPI
-        function onSignalRequestUserFollowedArtistsFinished() {
-          delegateLoader.source = Utils.QMLPath("ArtistDelegate.qml")
+        target: libraryListView
+        function onModelChanged() {
+          if (libraryListView.model) {
+            if (libraryListView.model[0].type === "playlist") {
+              delegateLoader.source = Utils.QMLPath("PlayListDelegate.qml")
+            } else if (libraryListView.model[0].type === "artist") {
+              delegateLoader.source = Utils.QMLPath("ArtistDelegate.qml")
+            } else if (libraryListView.model[0].type === "album") {
+              delegateLoader.source = Utils.QMLPath("AlbumDelegate.qml")
+            }
+          }
         }
       }
     }
@@ -77,17 +83,32 @@ Rectangle {
       }
     }
     Connections {
+      target: artistAPI
+      function onSignalRequestUserFollowedArtistsFinished() {
+        libraryListView.model = artistAPI.artistPages;
+      }
+    }
+    Connections {
+      target: albumAPI
+      function onSignalRequestUserSavedAlbumsFinished() {
+        libraryListView.model = albumAPI.userSavedAlbums
+      }
+    }
+    Connections {
       target: viewController
       function onSignalChangeLibrary(lib) {
         if (lib === "Playlists") {
           playListsAPI.getCurrentUserPlaylists()
         } else if (lib === "Artists") {
           artistAPI.requestUserFollowedArtists()
+        } else if (lib === "Albums") {
+          albumAPI.requestUserSavedAlbums()
+        } else if (lib === "Podcasts") {
+          console.log("Podcasts")
+        } else if (lib === "Local Files") {
+          console.log("Local Files")
         }
       }
-    }
-    Component.onCompleted: {
-      playListsAPI.getCurrentUserPlaylists()
     }
   }
 }

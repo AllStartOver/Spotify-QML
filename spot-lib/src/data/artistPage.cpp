@@ -17,7 +17,6 @@ public:
       return;
     }
     imgUrl = images[0].toObject()["url"].toString();
-    qDebug() << "ArtistPage::Implementation: id: " << id << " name: " << name << " imgUrl: " << imgUrl;
   }
 
   ArtistPage* parent;
@@ -52,7 +51,12 @@ const QString& ArtistPage::name() const
   return impl->name;
 }
 
-const QString& ArtistPage::imgFileName() const 
+const QString& ArtistPage::imgUrl() const 
+{
+  return impl->imgUrl;
+}
+
+QString& ArtistPage::imgFileName()
 {
   return impl->imgFileName;
 }

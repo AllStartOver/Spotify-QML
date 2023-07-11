@@ -7,6 +7,23 @@
     "variant": "cpp",
     "xutility": "cpp",
     "qnetworkrequest": "cpp",
-    "qscopedpointer": "cpp"
+    "qscopedpointer": "cpp",
+    "__hash_table": "cpp",
+    "__tree": "cpp",
+    "__tuple": "cpp",
+    "chrono": "cpp",
+    "compare": "cpp",
+    "cstddef": "cpp",
+    "type_traits": "cpp",
+    "filesystem": "cpp",
+    "limits": "cpp",
+    "ratio": "cpp",
+    "__functional_base": "cpp",
+    "__functional_base_03": "cpp",
+    "algorithm": "cpp",
+    "functional": "cpp",
+    "iterator": "cpp",
+    "memory": "cpp",
+    "utility": "cpp"
   }
 }

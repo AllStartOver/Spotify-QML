@@ -21,11 +21,11 @@ Rectangle {
 
   Text {
     id: playListName
-    font.pixelSize: 12
+    font.pixelSize: 14
     anchors.left: playListCover.right
     anchors.leftMargin: 10
     anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: -10
+    anchors.verticalCenterOffset: -13
     text: playList.name
     color: isPlaying ? Style.colorSpotifyGreen : Style.colorSpotifyWhite
   }
@@ -36,7 +36,7 @@ Rectangle {
     anchors.left: playListCover.right
     anchors.leftMargin: 10
     anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: 10
+    anchors.verticalCenterOffset: 13
     text: playList.owner
     color: "gray"
   }

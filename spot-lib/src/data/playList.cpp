@@ -81,6 +81,7 @@ PlayList::~PlayList() {}
 
 // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
 
+const QString PlayList::type() const { return "playlist"; }
 QString PlayList::id() const { return impl->id; }
 QString PlayList::name() const { return impl->name; }
 QString PlayList::img_url() const { return impl->img_url; }
