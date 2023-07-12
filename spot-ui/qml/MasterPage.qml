@@ -107,6 +107,12 @@ Item {
         stackPages.push({id: id, source: source})
         currentIndex++
       }
+      function onSignalChangeArtistSource(source, id)
+      {
+        pageLoader.source = source
+        stackPages.push({id: id, source: source})
+        currentIndex++
+      }
     }
   }
 

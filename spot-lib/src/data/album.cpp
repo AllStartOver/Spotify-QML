@@ -13,8 +13,12 @@ public:
     name = json["name"].toString();
     img_url = json["images"].toArray()[0].toObject()["url"].toString();
     uri = json["uri"].toString();
+    release_date = json["release_date"].toString();
     for (auto track : json["tracks"].toObject()["items"].toArray()) {
       tracks.append(new Track(parent, track.toObject(), uri));
+    }
+    for (auto artist : json["artists"].toArray()) {
+      artists.append(new Artist(parent, artist.toObject()));
     }
     qDebug() << "Album::Implementation: tracks.size() = " << tracks.size() << " for album " << name;
   }
@@ -22,10 +26,11 @@ public:
   QString id;
   QString name;
   QString img_url;
-  QString artist;
   QString imgFileName;
   QString uri;
+  QString release_date;
   QString averageCoverColor;
+  QList<Artist*> artists;
   QList<Track*> tracks;
 
   void calculateAverageCoverColor()
@@ -37,6 +42,10 @@ public:
     QImage img(imgFileName);
     if (img.isNull()) {
       qDebug() << "Album::calculateAverageCoverColor: img is null";
+      return;
+    }
+    if(averageCoverColor != "") {
+      qDebug() << "Album::calculateAverageCoverColor: averageCoverColor is already calculated";
       return;
     }
     int r = 0, g = 0, b = 0;
@@ -75,11 +84,17 @@ Album::~Album()
 
 const QString& Album::id() const { return impl->id; }
 const QString& Album::name() const { return impl->name; }
-const QString& Album::img_url() const { return impl->img_url; }
+const QString& Album::imgUrl() const { return impl->img_url; }
 const QString& Album::uri() const { return impl->uri; }
+const QString& Album::release_date() const { return impl->release_date; }
 QString& Album::imgFileName() { return impl->imgFileName; }
 
 const QString& Album::averageCoverColor() const { return impl->averageCoverColor; }
+
+QQmlListProperty<Artist> Album::artists()
+{
+  return QQmlListProperty<Artist>(this, &impl->artists);
+}
 
 QQmlListProperty<Track> Album::tracks()
 {

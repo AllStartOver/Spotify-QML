@@ -40,6 +40,12 @@ public:
 
   void requestAlbumByID(const QString &id)
   {
+    if(userSavedAlbumsMap.keys().contains(id))
+    {
+      currentAlbumID = id;
+      emit parent->signalRequestAlbumByIDFinished();
+      return;
+    }
     if(albumsMap.keys().contains(id))
     {
       currentAlbumID = id;
@@ -55,10 +61,20 @@ public:
   void requestAlbumCover(const QString& url, const QString& id)
   {
     QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
-    albums[albumsMap[id]]->imgFileName() = fileName;
+    Album* album;
+    if(userSavedAlbumsMap.keys().contains(id))
+    {
+      album = userSavedAlbums.at(userSavedAlbumsMap.value(id));
+    }
+    else
+    {
+      album = albums.at(albumsMap.value(id));
+    }
+
+    album->imgFileName() = fileName;
     if (QFile::exists(fileName))
     {
-      emit parent->signalAlbumRequestCoverFinished();
+      emit album->signalAlbumRequestCoverFinished();
       return;
     }
     QNetworkRequest request(url);
@@ -116,8 +132,17 @@ public:
       reply->deleteLater();
       return;
     }
+    Album* album;
+    if (userSavedAlbumsMap.keys().contains(id))
+    {
+      album = userSavedAlbums[userSavedAlbumsMap[id]];
+    }
+    else
+    {
+      album = albums[albumsMap[id]];
+    }
     QByteArray data = reply->readAll();
-    QFile file(albums[albumsMap[id]]->imgFileName());
+    QFile file(album->imgFileName());
     QDir dir;
     if (!dir.exists("cache_imgs")) {
       dir.mkpath("cache_imgs");
@@ -125,14 +150,16 @@ public:
     if (file.open(QIODevice::WriteOnly)) {
       file.write(data);
       file.close();
-      qDebug() << "write a img file to " << albums[albumsMap[id]]->imgFileName();
-      emit parent->signalAlbumRequestCoverFinished();
+      qDebug() << "write a img file to " << album->imgFileName();
+      emit album->signalAlbumRequestCoverFinished();
     }
     else {
       qDebug() << "Failed to open file";
     }
     reply->deleteLater();
   }
+
+  // HELP_FUNCTION @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -165,7 +192,13 @@ Album* AlbumAPI::getAlbumByID(const QString &id)
 
 Album* AlbumAPI::getCurrentAlbum()
 {
-  Album* album = impl->albums[impl->albumsMap[impl->currentAlbumID]];
+  Album* album;
+  if (impl->userSavedAlbumsMap.keys().contains(impl->currentAlbumID))
+  {
+    album = impl->userSavedAlbums[impl->userSavedAlbumsMap[impl->currentAlbumID]];
+    return album;
+  }
+  album = impl->albums[impl->albumsMap[impl->currentAlbumID]];
   return album;
 }
 

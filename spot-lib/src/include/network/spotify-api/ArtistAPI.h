@@ -18,7 +18,8 @@ public:
   ~ArtistAPI() override;
 
   Q_INVOKABLE void requestUserFollowedArtists();
-
+  Q_INVOKABLE void requestArtistByID(const QString& id);
+  Q_INVOKABLE ArtistPage* getCurrentArtistPage();
   QQmlListProperty<ArtistPage> artistPages();
 
 signals:

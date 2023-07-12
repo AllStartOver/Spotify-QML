@@ -19,6 +19,9 @@ public:
 
   QMap<QString, int> artistPagesMap;
   QList<ArtistPage*> artistPages;
+  QMap<QString, int> userFollowedArtistsMap;
+  QList<ArtistPage*> userFollowedArtists;
+
   QString currentArtistID;
 
   // MEMBER FUNC @@@@@@@@@@@@@@@@@@@@@@@
@@ -35,14 +38,28 @@ public:
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onRequestUserFollowedArtists(reply); });
   }
 
+  void requestArtistByID(const QString& id) {
+    if (getArtistPageByID(id) != nullptr)
+    {
+      currentArtistID = id;
+      emit parent->signalRequestArtistByIDFinished();
+      return;
+    }
+  }
   void requestArtistCover(const QString& url, const QString& id)
   {
     QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
-    artistPages[artistPagesMap[id]]->imgFileName() = fileName;
+    ArtistPage* artistPage = getArtistPageByID(id);
+    if(artistPage == nullptr)
+    {
+      qDebug() << "ArtistAPI::requestArtistCover: artistPage is nullptr";
+      return;
+    }
+    artistPage->imgFileName() = fileName;
     if (QFile::exists(fileName))
     {
       qDebug() << "ArtistAPI::requestArtistCover: file exists";
-      emit artistPages[artistPagesMap[id]]->signalArtistPageRequestCoverFinished();
+      emit artistPage->signalArtistPageRequestCoverFinished();
       return;
     }
     QNetworkRequest request(url);
@@ -78,8 +95,9 @@ public:
       return;
     }
     // Save the image
+    ArtistPage* artistPage = getArtistPageByID(id);
     QByteArray data = reply->readAll();
-    QFile file(artistPages[artistPagesMap[id]]->imgFileName());
+    QFile file(artistPage->imgFileName());
     QDir dir;
     if (!dir.exists("cache_imgs")) {
       dir.mkpath("cache_imgs");
@@ -87,13 +105,21 @@ public:
     if (file.open(QIODevice::WriteOnly)) {
       file.write(data);
       file.close();
-      qDebug() << "write a img file to " << artistPages[artistPagesMap[id]]->imgFileName();
-      emit artistPages[artistPagesMap[id]]->signalArtistPageRequestCoverFinished();
+      qDebug() << "write a img file to " << artistPage->imgFileName();
+      emit artistPage->signalArtistPageRequestCoverFinished();
     }
     else {
       qDebug() << "Failed to open file";
     }
     reply->deleteLater();
+  }
+
+  // HELPER FUNC @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  ArtistPage* getArtistPageByID(const QString& id)
+  {
+    if (userFollowedArtistsMap.contains(id)) return userFollowedArtists[userFollowedArtistsMap[id]];
+    if (artistPagesMap.contains(id)) return artistPages[artistPagesMap[id]];
+    return nullptr;
   }
 };
 
@@ -113,6 +139,16 @@ ArtistAPI::~ArtistAPI()
 void ArtistAPI::requestUserFollowedArtists()
 {
   return impl->requestUserFollowedArtists();
+}
+
+void ArtistAPI::requestArtistByID(const QString& id)
+{
+  return impl->requestArtistByID(id);
+}
+
+ArtistPage* ArtistAPI::getCurrentArtistPage()
+{
+  return impl->getArtistPageByID(impl->currentArtistID);
 }
 
 QQmlListProperty<ArtistPage> ArtistAPI::artistPages()

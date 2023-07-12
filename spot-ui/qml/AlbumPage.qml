@@ -5,9 +5,9 @@ import Views 1.0
 import Styles 1.0
 
 ListView {
+  id: root
   property var album
-  property var backgroundColor : album.averageCoverColor ? album.averageCoverColor : Style.colorSpotifyBlack
-  id: albumTracksView
+  property var backgroundColor : Style.colorSpotifyBlack
   anchors.fill: parent
   interactive: true
   clip: true
@@ -26,9 +26,12 @@ ListView {
       width: 240
 
       Connections {
-        target: albumAPI
+        target: album
+        enabled: album !== null
         function onSignalAlbumRequestCoverFinished() {
           cover.source = "file:///" + executablePath + "/" + album.imgFileName
+          album.calculateAverageCoverColor()
+          backgroundColor = album.averageCoverColor
         }
       }
     } 
@@ -45,15 +48,48 @@ ListView {
       }
     }
 
-    Text {
+    ListView {
       id: albumArtists
       anchors.left: cover.right
       anchors.leftMargin: 30
       anchors.bottom: cover.bottom
-      font.pixelSize: 15
-      font.bold: true
-      color: Style.colorSpotifyWhite
-      text: "Mock Artist"
+      anchors.right: parent.right
+      anchors.rightMargin: 30
+      height: 30
+      orientation: ListView.Horizontal
+      delegate: Row {
+        Text {
+          text: modelData.name
+          color: Style.colorSpotifyWhite
+          font.pixelSize: 15
+          font.bold: true
+          font.underline: artistMouseArea.containsMouse ? true : false
+          MouseArea {
+            id: artistMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+          }
+        }
+        Text {
+          text: " • "
+          color: Style.colorSpotifyWhite
+          font.pixelSize: 15
+          font.bold: true
+        }
+      }
+      footer: Text {
+        text: album !== null ? album.release_date + " • " + album.tracks.length + " songs" : ""
+        color: Style.colorSpotifyWhite
+        font.pixelSize: 15
+      }
+      Connections {
+        target: album
+        enabled: album !== null
+        function onSignalAlbumRequestCoverFinished() {
+          albumArtists.model = album.artists
+        }
+      }
     }
 
     Text {
@@ -109,7 +145,7 @@ ListView {
     target: albumAPI
     function onSignalRequestAlbumByIDFinished() {
       album = albumAPI.getCurrentAlbum()
-      album.signalAlbumRequestCover(album.img_url, album.id)
+      album.signalAlbumRequestCover(album.imgUrl, album.id)
     }
   }
 }

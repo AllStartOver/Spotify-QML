@@ -67,7 +67,8 @@ Rectangle {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: {
-
+      viewController.signalChangeArtistSource(Utils.QMLPath("ArtistPage.qml"), artist.id)
+      artistAPI.requestArtistByID(artist.id)
     }
   }
   Component.onCompleted: {
