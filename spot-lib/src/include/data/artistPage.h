@@ -25,12 +25,21 @@ class ArtistPage : public QObject
   Q_PROPERTY(QString name READ name CONSTANT)
   Q_PROPERTY(QString imgUrl READ imgUrl CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
+  Q_PROPERTY(QQmlListProperty<Track> topTracks READ topTracks CONSTANT)
+  Q_PROPERTY(QQmlListProperty<Album> albums READ albums CONSTANT)
+  Q_PROPERTY(QQmlListProperty<Album> singles READ singles CONSTANT)
+  Q_PROPERTY(QQmlListProperty<Album> compilations READ compilations CONSTANT)
+  Q_PROPERTY(QQmlListProperty<Album> appearsOn READ appearsOn CONSTANT)
 
 public:
   explicit ArtistPage(QObject *parent, QJsonObject json);
   ~ArtistPage();
 
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@
+  void addTopTrack(QJsonObject json);
+
+  bool topTracksIsEmpty() const;
+  bool albumsIsEmpty() const;
 
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
   const QString type() const { return "artist"; }
@@ -39,12 +48,18 @@ public:
   const QString& imgUrl() const;
   QString& imgFileName();
 
-  QQmlListProperty<Track> tracks();
+  QQmlListProperty<Track> topTracks();
+  QQmlListProperty<Album> albums();
+  QQmlListProperty<Album> singles();
+  QQmlListProperty<Album> compilations();
+  QQmlListProperty<Album> appearsOn();
 
 signals:
   void signalArtistPageRequestTopTracks(const QString& id);
   void signalArtistPageRequestCover(const QString& url, const QString& id);
   void signalArtistPageRequestCoverFinished();
+  void signalArtistPageRequestTopTracksFinished();
+  void signalArtistPageRequestAlbumsFinished();
 
 private:
   class Implementation;

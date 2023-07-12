@@ -45,7 +45,48 @@ public:
       emit parent->signalRequestArtistByIDFinished();
       return;
     }
+    QString endpoint = "artists/" + id;
+    QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
+    QNetworkReply* reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id, this]() { onRequestArtistByID(reply, id); });
   }
+
+  void requestArtistTopTracks(const QString& id)
+  {
+    ArtistPage* artistPage = getArtistPageByID(id);
+    if (artistPage == nullptr)
+    {
+      qDebug() << "ArtistAPI::requestArtistTopTracks: artistPage is nullptr";
+      return;
+    }
+    if (!artistPage->topTracksIsEmpty()) 
+    {
+      emit artistPage->signalArtistPageRequestTopTracksFinished();
+      return;
+    }
+    QString endpoint = "artists/" + id + "/top-tracks";
+    QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
+    QNetworkReply* reply = manager->get(request);
+  }
+
+  void requestArtistAlbums(const QString& id)
+  {
+    ArtistPage* artistPage = getArtistPageByID(id);
+    if(artistPage == nullptr)
+    {
+      qDebug() << "ArtistAPI::requestArtistAlbums: artistPage is nullptr";
+      return;
+    }
+    if(!artistPage->albumsIsEmpty())
+    {
+      emit artistPage->signalArtistPageRequestAlbumsFinished();
+      return;
+    }
+    QString endpoint = "artists/" + id + "/albums";
+    QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
+    QNetworkReply* reply = manager->get(request);
+  }
+
   void requestArtistCover(const QString& url, const QString& id)
   {
     QString fileName = "cache_imgs/" + url.split("/").last() + ".jpg";
@@ -85,6 +126,23 @@ public:
       artistPagesMap.insert(artistPage->id(), index);
     }
     emit parent->signalRequestUserFollowedArtistsFinished();
+  }
+
+  void onRequestArtistByID(QNetworkReply* reply, const QString& id)
+  {
+    if (!parent->log(reply, "RequestArtistByID"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();
+    ArtistPage* artistPage = new ArtistPage(parent, json);
+    QObject::connect(artistPage, &ArtistPage::signalArtistPageRequestCover, parent, [this](const QString& url, const QString& id) { requestArtistCover(url, id); });
+    artistPages.append(artistPage);
+    int index = artistPages.indexOf(artistPage);
+    artistPagesMap.insert(artistPage->id(), index);
+    currentArtistID = id;
+    emit parent->signalRequestArtistByIDFinished();
   }
 
   void onRequestArtistCover(QNetworkReply* reply, const QString& id)
@@ -144,6 +202,16 @@ void ArtistAPI::requestUserFollowedArtists()
 void ArtistAPI::requestArtistByID(const QString& id)
 {
   return impl->requestArtistByID(id);
+}
+
+void ArtistAPI::requestArtistTopTracks(const QString& id)
+{
+  return impl->requestArtistTopTracks(id);
+}
+
+void ArtistAPI::requestArtistAlbums(const QString& id)
+{
+  return impl->requestArtistAlbums(id);
 }
 
 ArtistPage* ArtistAPI::getCurrentArtistPage()
