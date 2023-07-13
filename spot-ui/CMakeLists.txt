@@ -46,6 +46,7 @@ set(qml_files
     "qml/TrackDelegate.qml"
     "qml/ArtistPage.qml"
     "qml/ArtistDelegate.qml"
+    "qml/ArtistTrackDelegate.qml"
     "qml/MasterPage.qml"
     "qml/HomePage.qml"
     "qml/NavigationView.qml"

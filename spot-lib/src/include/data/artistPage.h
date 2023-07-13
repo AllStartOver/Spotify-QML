@@ -25,6 +25,7 @@ class ArtistPage : public QObject
   Q_PROPERTY(QString name READ name CONSTANT)
   Q_PROPERTY(QString imgUrl READ imgUrl CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
+  Q_PROPERTY(QString averageCoverColor READ averageCoverColor CONSTANT)
   Q_PROPERTY(QQmlListProperty<Track> topTracks READ topTracks CONSTANT)
   Q_PROPERTY(QQmlListProperty<Album> albums READ albums CONSTANT)
   Q_PROPERTY(QQmlListProperty<Album> singles READ singles CONSTANT)
@@ -36,17 +37,19 @@ public:
   ~ArtistPage();
 
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@
-  void addTopTrack(QJsonObject json);
-
+  void addTopTracks(QJsonObject json);
   bool topTracksIsEmpty() const;
   bool albumsIsEmpty() const;
+  Q_INVOKABLE void calculateAverageCoverColor();
 
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
   const QString type() const { return "artist"; }
   const QString& id() const;
   const QString& name() const;
+  const QString& uri() const;
   const QString& imgUrl() const;
   QString& imgFileName();
+  const QString& averageCoverColor() const;
 
   QQmlListProperty<Track> topTracks();
   QQmlListProperty<Album> albums();

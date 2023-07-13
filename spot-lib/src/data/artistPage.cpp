@@ -11,6 +11,7 @@ public:
   {
     id = json["id"].toString();
     name = json["name"].toString();
+    uri = json["uri"].toString();
     QJsonArray images = json["images"].toArray();
     if (images.size() == 0) {
       qDebug() << "ArtistPage::Implementation: images.size() == 0";
@@ -22,8 +23,10 @@ public:
   ArtistPage* parent;
   QString id;
   QString name;
+  QString uri;
   QString imgUrl;
   QString imgFileName;
+  QString averageCoverColor;
   QList<Track*> topTracks;
   QList<Album*> albums;
   QList<Album*> singles;
@@ -34,9 +37,8 @@ public:
   void addTopTracks(QJsonObject json)
   {
     for (auto track : json["tracks"].toArray()) {
-      topTracks.append(new Track(parent, track.toObject()));
+      topTracks.append(new Track(parent, track.toObject(), uri));
     }
-    emit parent->signalArtistPageRequestTopTracksFinished();
   }
   void addAlbums(QJsonObject json)
   {
@@ -53,6 +55,35 @@ public:
     }
     emit parent->signalArtistPageRequestAlbumsFinished();
   }
+
+  void calculateAverageCoverColor()
+  {
+    if (imgFileName.isEmpty()) {
+      qDebug() << "ArtistPage::calculateAverageCoverColor: imgFileName is empty";
+      return;
+    }
+    QImage img(imgFileName);
+    if (img.isNull()) {
+      qDebug() << "ArtistPage::calculateAverageCoverColor: img is null";
+      return;
+    }
+    int r = 0, g = 0, b = 0;
+    int count = 0;
+    for (int x = 0; x < img.width(); x += 10) {
+      for (int y = 0; y < img.height(); y += 10) {
+        QColor color = img.pixelColor(x, y);
+        r += color.red();
+        g += color.green();
+        b += color.blue();
+        count++;
+      }
+    }
+    r /= count;
+    g /= count;
+    b /= count;
+    averageCoverColor = QColor(r, g, b).name();
+    qDebug() << "ArtistPage::calculateAverageCoverColor: " << averageCoverColor;
+  }
 };
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -68,7 +99,7 @@ ArtistPage::~ArtistPage() {}
 
 // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@
 
-void ArtistPage::addTopTrack(QJsonObject json)
+void ArtistPage::addTopTracks(QJsonObject json)
 {
   return impl->addTopTracks(json);
 }
@@ -83,6 +114,11 @@ bool ArtistPage::albumsIsEmpty() const
   return impl->albums.isEmpty() && impl->singles.isEmpty() && impl->compilations.isEmpty();
 }
 
+void ArtistPage::calculateAverageCoverColor()
+{
+  return impl->calculateAverageCoverColor();
+}
+
 // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
 
 const QString& ArtistPage::id() const 
@@ -95,6 +131,11 @@ const QString& ArtistPage::name() const
   return impl->name;
 }
 
+const QString& ArtistPage::uri() const 
+{
+  return impl->uri;
+}
+
 const QString& ArtistPage::imgUrl() const 
 {
   return impl->imgUrl;
@@ -103,6 +144,11 @@ const QString& ArtistPage::imgUrl() const
 QString& ArtistPage::imgFileName()
 {
   return impl->imgFileName;
+}
+
+const QString& ArtistPage::averageCoverColor() const 
+{
+  return impl->averageCoverColor;
 }
 
 QQmlListProperty<Track> ArtistPage::topTracks() 

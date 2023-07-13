@@ -97,10 +97,6 @@ ListView {
     width: parent.width
     height: 50
     track: modelData
-
-    Component.onCompleted: {
-      modelData.signalTrackRequestCover(modelData.img_url)
-    }
   }
 
   Connections {

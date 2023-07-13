@@ -64,9 +64,10 @@ public:
       emit artistPage->signalArtistPageRequestTopTracksFinished();
       return;
     }
-    QString endpoint = "artists/" + id + "/top-tracks";
+    QString endpoint = "artists/" + id + "/top-tracks" + "?market=US";
     QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
     QNetworkReply* reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id, this]() { onRequestArtistTopTracks(reply, id); });
   }
 
   void requestArtistAlbums(const QString& id)
@@ -143,6 +144,19 @@ public:
     artistPagesMap.insert(artistPage->id(), index);
     currentArtistID = id;
     emit parent->signalRequestArtistByIDFinished();
+  }
+
+  void onRequestArtistTopTracks(QNetworkReply* reply, const QString& id)
+  {
+    if (!parent->log(reply, "RequestArtistTopTracks"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    ArtistPage* artistPage = getArtistPageByID(id);
+    QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();
+    artistPage->addTopTracks(json);
+    emit artistPage->signalArtistPageRequestTopTracksFinished();
   }
 
   void onRequestArtistCover(QNetworkReply* reply, const QString& id)
