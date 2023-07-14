@@ -16,6 +16,9 @@ public:
   Artist *parent;
   QString id;
   QString name;
+  QString imgUrl;
+  QString uri;
+  QString imgFileName;
 };
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -31,14 +34,29 @@ Artist::~Artist() {}
 
 // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
 
-QString Artist::id() const
+const QString& Artist::id() const
 {
   return impl->id;
 }
 
-QString Artist::name() const
+const QString& Artist::name() const
 {
   return impl->name;
+}
+
+const QString& Artist::imgUrl() const
+{
+  return impl->imgUrl;
+}
+
+const QString& Artist::uri() const
+{
+  return impl->uri;
+}
+
+QString& Artist::imgFileName()
+{
+  return impl->imgFileName;
 }
 
 }}

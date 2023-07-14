@@ -10,6 +10,7 @@
 
 #include "data/track.h"
 #include "data/album.h"
+#include "data/artist.h"
 
 namespace libspot {
 namespace data {
@@ -31,6 +32,7 @@ class ArtistPage : public QObject
   Q_PROPERTY(QQmlListProperty<Album> singles READ singles CONSTANT)
   Q_PROPERTY(QQmlListProperty<Album> compilations READ compilations CONSTANT)
   Q_PROPERTY(QQmlListProperty<Album> appearsOn READ appearsOn CONSTANT)
+  Q_PROPERTY(QQmlListProperty<Artist> relatedArtists READ relatedArtists CONSTANT)
 
 public:
   explicit ArtistPage(QObject *parent, QJsonObject json);
@@ -38,8 +40,11 @@ public:
 
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@
   void addTopTracks(QJsonObject json);
+  void addAlbums(QJsonObject json);
+  void addRelatedArtists(QJsonObject json);
   bool topTracksIsEmpty() const;
   bool albumsIsEmpty() const;
+  bool relatedArtistsIsEmpty() const;
   Q_INVOKABLE void calculateAverageCoverColor();
 
   // Q_READ @@@@@@@@@@@@@@@@@@@@@@@@
@@ -56,6 +61,7 @@ public:
   QQmlListProperty<Album> singles();
   QQmlListProperty<Album> compilations();
   QQmlListProperty<Album> appearsOn();
+  QQmlListProperty<Artist> relatedArtists();
 
 signals:
   void signalArtistPageRequestTopTracks(const QString& id);
@@ -63,6 +69,7 @@ signals:
   void signalArtistPageRequestCoverFinished();
   void signalArtistPageRequestTopTracksFinished();
   void signalArtistPageRequestAlbumsFinished();
+  void signalArtistPageRequestRelatedArtistsFinished();
 
 private:
   class Implementation;

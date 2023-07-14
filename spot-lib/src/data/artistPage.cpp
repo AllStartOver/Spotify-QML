@@ -32,6 +32,7 @@ public:
   QList<Album*> singles;
   QList<Album*> compilations;
   QList<Album*> appearsOn;
+  QList<Artist*> relatedArtists;
 
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@
   void addTopTracks(QJsonObject json)
@@ -43,17 +44,23 @@ public:
   void addAlbums(QJsonObject json)
   {
     for (auto album : json["items"].toArray()) {
-      if (album.toObject()["album_type"].toString() == "album") {
+      QString album_group = album.toObject()["album_group"].toString();
+      if (album_group == "album") {
         albums.append(new Album(parent, album.toObject()));
-      }
-      else if (album.toObject()["album_type"].toString() == "single") {
+      } else if (album_group == "single") {
         singles.append(new Album(parent, album.toObject()));
-      }
-      else if (album.toObject()["album_type"].toString() == "compilation") {
+      } else if (album_group == "compilation") {
         compilations.append(new Album(parent, album.toObject()));
+      } else if (album_group == "appears_on") {
+        appearsOn.append(new Album(parent, album.toObject()));
       }
     }
-    emit parent->signalArtistPageRequestAlbumsFinished();
+  }
+  void addRelatedArtists(QJsonObject json)
+  {
+    for (auto artist : json["artists"].toArray()) {
+      relatedArtists.append(new Artist(parent, artist.toObject()));
+    }
   }
 
   void calculateAverageCoverColor()
@@ -104,6 +111,16 @@ void ArtistPage::addTopTracks(QJsonObject json)
   return impl->addTopTracks(json);
 }
 
+void ArtistPage::addAlbums(QJsonObject json)
+{
+  return impl->addAlbums(json);
+}
+
+void ArtistPage::addRelatedArtists(QJsonObject json)
+{
+  return impl->addRelatedArtists(json);
+}
+
 bool ArtistPage::topTracksIsEmpty() const
 {
   return impl->topTracks.isEmpty();
@@ -112,6 +129,11 @@ bool ArtistPage::topTracksIsEmpty() const
 bool ArtistPage::albumsIsEmpty() const
 {
   return impl->albums.isEmpty() && impl->singles.isEmpty() && impl->compilations.isEmpty();
+}
+
+bool ArtistPage::relatedArtistsIsEmpty() const
+{
+  return impl->relatedArtists.isEmpty();
 }
 
 void ArtistPage::calculateAverageCoverColor()
@@ -175,5 +197,6 @@ QQmlListProperty<Album> ArtistPage::appearsOn()
 {
   return QQmlListProperty<Album>(this, &impl->appearsOn);
 }
+
 
 }}

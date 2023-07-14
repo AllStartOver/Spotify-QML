@@ -7,9 +7,9 @@ import Styles 1.0
 Flickable {
   property var artist
   id: root
-  anchors.fill: parent
-  contentHeight: 400 + topTracksList.contentHeight + discographyList.contentHeight
-  contentWidth: parent.width
+  width: parent.width
+  height: parent.height
+  contentHeight: 400 + topTracksList.contentHeight + albumHeader.height + discographyList.height
   interactive: true
   clip: true
 
@@ -59,8 +59,9 @@ Flickable {
     anchors.topMargin: 400
     anchors.left: parent.left
     anchors.right: parent.right
-    height: contentHeight
+    height: 140 + 10 * 50
     interactive: false
+    orientation: ListView.Vertical
 
     header: Rectangle {
       width: parent.width
@@ -139,78 +140,130 @@ Flickable {
     }
   }
 
-  ListView {
-    id: discographyList
+  Rectangle {
+    id: albumHeader
     anchors.top: topTracksList.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    height: contentHeight
-
-    header: Rectangle {
-      width: parent.width
-      height: 110
-      color: "transparent"
-      Text {
-        anchors.left: parent.left
-        anchors.leftMargin: 20
-        anchors.top: parent.top
-        anchors.topMargin: 20
-        text: "Discography"
-        font.pixelSize: 20
-        font.bold: true
-        color: Style.colorSpotifyWhite
+    height: 110
+    width: root.width
+    color: "transparent"
+    Text {
+      anchors.left: parent.left
+      anchors.leftMargin: 20
+      anchors.top: parent.top
+      anchors.topMargin: 20
+      text: "Discography"
+      font.pixelSize: 20
+      font.bold: true
+      color: Style.colorSpotifyWhite
+    }
+    Row {
+      id: discographyButtons 
+      anchors.left: parent.left
+      anchors.leftMargin: 20
+      anchors.bottom: parent.bottom
+      anchors.bottomMargin: 20
+      spacing: 10
+      property int focusedButtonIndex
+      Rectangle {
+        id: albumsButton
+        width: albumsButtonText.width + 20
+        height: 30
+        color: parent.focusedButtonIndex === 0 ? Style.colorSpotifyWhite : Style.colorSpotifyLightGray
+        radius: 15
+        Text {
+          id: albumsButtonText
+          anchors.centerIn: parent
+          text: "Albums"
+          font.pixelSize: 14
+          color: discographyButtons.focusedButtonIndex === 0 ? Style.colorSpotifyBlack : Style.colorSpotifyWhite
+        }
+        MouseArea {
+          id: albumsButtonMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: {
+            discographyButtons.focusedButtonIndex = 0
+            discographyList.model = artistAPI.getCurrentArtistPage().albums
+          }
+        }
       }
-      Row {
-        id: discographyButtons 
-        anchors.left: parent.left
-        anchors.leftMargin: 20
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 20
-        spacing: 10
-        Rectangle {
-          id: albumsButton
-          width: albumsButtonText.width + 20
-          height: 30
-          color: Style.colorSpotifyLightGray
-          radius: 10
-          Text {
-            id: albumsButtonText
-            anchors.centerIn: parent
-            text: "Albums"
-            font.pixelSize: 12
-            color: Style.colorSpotifyWhite
-          }
-        }
 
-        Rectangle {
-          id: singlesButton
-          width: singlesButtonText.width + 20
-          height: 30
-          color: Style.colorSpotifyLightGray
-          radius: 10
-          Text {
-            id: singlesButtonText
-            anchors.centerIn: parent
-            text: "Singles"
-            font.pixelSize: 12
-            color: Style.colorSpotifyWhite
+      Rectangle {
+        id: singlesButton
+        width: singlesButtonText.width + 20
+        height: 30
+        color: parent.focusedButtonIndex === 1 ? Style.colorSpotifyWhite : Style.colorSpotifyLightGray
+        radius: 15
+        Text {
+          id: singlesButtonText
+          anchors.centerIn: parent
+          text: "Singles"
+          font.pixelSize: 14
+          color: discographyButtons.focusedButtonIndex === 1 ? Style.colorSpotifyBlack : Style.colorSpotifyWhite
+        }
+        MouseArea {
+          id: singlesButtonMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: {
+            discographyButtons.focusedButtonIndex = 1
+            discographyList.model = artistAPI.getCurrentArtistPage().singles
           }
         }
+      }
 
-        Rectangle {
-          id: compilationsButton
-          width: compilationsButtonText.width + 20
-          height: 30
-          color: Style.colorSpotifyLightGray
-          radius: 10
-          Text {
-            id: compilationsButtonText
-            anchors.centerIn: parent
-            text: "Compilations"
-            font.pixelSize: 12
-            color: Style.colorSpotifyWhite
+      Rectangle {
+        id: compilationsButton
+        width: compilationsButtonText.width + 20
+        height: 30
+        color: discographyButtons.focusedButtonIndex === 2 ? Style.colorSpotifyWhite : Style.colorSpotifyLightGray
+        radius: 15
+        Text {
+          id: compilationsButtonText
+          anchors.centerIn: parent
+          text: "Compilations"
+          font.pixelSize: 14
+          color: discographyButtons.focusedButtonIndex === 2 ? Style.colorSpotifyBlack : Style.colorSpotifyWhite
+        }
+        MouseArea {
+          id: compilationsButtonMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: {
+            discographyButtons.focusedButtonIndex = 2
           }
         }
+      }
+    }
+  }
+
+  ListView {
+    id: discographyList
+    anchors.top: albumHeader.bottom
+    anchors.left: parent.left
+    anchors.leftMargin: 40
+    anchors.right: parent.right
+    anchors.rightMargin: 40
+    height: 250
+    width: contentWidth
+
+    orientation: ListView.Horizontal
+
+    spacing: 30
+
+    delegate: ArtistAlbumDelegate {
+      album: modelData
+    }
+    Connections {
+      target: artist
+      enabled: artist !== null
+      function onSignalArtistPageRequestAlbumsFinished() {
+        discographyList.model = artistAPI.getCurrentArtistPage().albums
       }
     }
   }
@@ -220,6 +273,7 @@ Flickable {
       console.log("onSignalRequestArtistByIDFinished")
       artist = artistAPI.getCurrentArtistPage()
       artistAPI.requestArtistTopTracks(artist.id)
+      artistAPI.requestArtistAlbums(artist.id)
       artist.signalArtistPageRequestCover(artist.imgUrl, artist.id)
     }
   }

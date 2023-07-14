@@ -1,5 +1,7 @@
 #include "data/album.h"
 
+using namespace libspot::network;
+
 namespace libspot {
 namespace data {
 
@@ -14,14 +16,15 @@ public:
     img_url = json["images"].toArray()[0].toObject()["url"].toString();
     uri = json["uri"].toString();
     release_date = json["release_date"].toString();
+    albumType = json["album_type"].toString();
     for (auto track : json["tracks"].toObject()["items"].toArray()) {
       tracks.append(new Track(parent, track.toObject(), uri));
     }
     for (auto artist : json["artists"].toArray()) {
       artists.append(new Artist(parent, artist.toObject()));
     }
-    qDebug() << "Album::Implementation: tracks.size() = " << tracks.size() << " for album " << name;
   }
+  QNetworkAccessManager *manager = NetworkManager::instance().getNetworkManager();
   Album* parent;
   QString id;
   QString name;
@@ -29,9 +32,39 @@ public:
   QString imgFileName;
   QString uri;
   QString release_date;
+  QString albumType;
   QString averageCoverColor;
   QList<Artist*> artists;
   QList<Track*> tracks;
+
+  void requestAlbumCover()
+  {
+    QString fileName = "cache_imgs/" + img_url.split("/").last() + ".jpg";
+    imgFileName = fileName;
+    if(QFile::exists(fileName)) {
+      emit parent->signalAlbumRequestCoverFinished();
+      return;
+    }
+    QNetworkRequest request(img_url);
+    QNetworkReply* reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, [=]() {
+      onRequestAlbumCover(reply);
+    });
+  }
+
+  void onRequestAlbumCover(QNetworkReply* reply)
+  {
+    if(reply->error() != QNetworkReply::NoError) {
+      qDebug() << "Album::onRequestAlbumCover: " << reply->errorString();
+      return;
+    }
+    QFile file(imgFileName);
+    if(file.open(QIODevice::WriteOnly)) {
+      file.write(reply->readAll());
+      file.close();
+      emit parent->signalAlbumRequestCoverFinished();
+    }
+  }
 
   void calculateAverageCoverColor()
   {
@@ -87,6 +120,7 @@ const QString& Album::name() const { return impl->name; }
 const QString& Album::imgUrl() const { return impl->img_url; }
 const QString& Album::uri() const { return impl->uri; }
 const QString& Album::release_date() const { return impl->release_date; }
+const QString& Album::albumType() const { return impl->albumType; }
 QString& Album::imgFileName() { return impl->imgFileName; }
 
 const QString& Album::averageCoverColor() const { return impl->averageCoverColor; }
@@ -103,9 +137,14 @@ QQmlListProperty<Track> Album::tracks()
 
 // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@
 
+void Album::requestAlbumCover()
+{
+  return impl->requestAlbumCover();
+}
+
 void Album::calculateAverageCoverColor()
 {
-  impl->calculateAverageCoverColor();
+  return impl->calculateAverageCoverColor();
 }
 
 bool Album::isEmpty() const { return impl->tracks.isEmpty(); }

@@ -86,6 +86,26 @@ public:
     QString endpoint = "artists/" + id + "/albums";
     QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
     QNetworkReply* reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id, this]() { onRequestArtistAlbums(reply, id); });
+  }
+
+  void requestArtistRelatedArtists(const QString& id)
+  {
+    ArtistPage* artistPage = getArtistPageByID(id);
+    if(artistPage == nullptr)
+    {
+      qDebug() << "ArtistAPI::requestArtistRelatedArtists: artistPage is nullptr";
+      return;
+    }
+    if(!artistPage->relatedArtistsIsEmpty())
+    {
+      emit artistPage->signalArtistPageRequestRelatedArtistsFinished();
+      return;
+    }
+    QString endpoint = "artists/" + id + "/related-artists";
+    QNetworkRequest request = parent->createBaseRequest(endpoint, access_token);
+    QNetworkReply* reply = manager->get(request);
+    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, id = id, this]() { onRequestArtistRelatedArtists(reply, id); });
   }
 
   void requestArtistCover(const QString& url, const QString& id)
@@ -159,6 +179,42 @@ public:
     emit artistPage->signalArtistPageRequestTopTracksFinished();
   }
 
+  void onRequestArtistAlbums(QNetworkReply* reply, const QString& id)
+  {
+    if (!parent->log(reply, "RequestArtistAlbums"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    ArtistPage* artistPage = getArtistPageByID(id);
+    if (artistPage == nullptr)
+    {
+      qDebug() << "ArtistAPI::onRequestArtistAlbums: artistPage is nullptr";
+      return;
+    }
+    QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();
+    artistPage->addAlbums(json);
+    emit artistPage->signalArtistPageRequestAlbumsFinished();
+  }
+
+  void onRequestArtistRelatedArtists(QNetworkReply* reply, const QString& id)
+  {
+    if (!parent->log(reply, "RequestArtistRelatedArtists"))
+    {
+      reply->deleteLater();
+      return;
+    }
+    ArtistPage* artistPage = getArtistPageByID(id);
+    if (artistPage == nullptr)
+    {
+      qDebug() << "ArtistAPI::onRequestArtistRelatedArtists: artistPage is nullptr";
+      return;
+    }
+    QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();
+    artistPage->addRelatedArtists(json);
+    emit artistPage->signalArtistPageRequestRelatedArtistsFinished();
+  }
+
   void onRequestArtistCover(QNetworkReply* reply, const QString& id)
   {
     if (!parent->log(reply, "RequestArtistCover"))
@@ -226,6 +282,11 @@ void ArtistAPI::requestArtistTopTracks(const QString& id)
 void ArtistAPI::requestArtistAlbums(const QString& id)
 {
   return impl->requestArtistAlbums(id);
+}
+
+void ArtistAPI::requestArtistRelatedArtists(const QString& id)
+{
+  return impl->requestArtistRelatedArtists(id);
 }
 
 ArtistPage* ArtistAPI::getCurrentArtistPage()

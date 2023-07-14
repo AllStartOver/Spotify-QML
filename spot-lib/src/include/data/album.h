@@ -10,6 +10,7 @@
 
 #include "data/track.h"
 #include "data/artist.h"
+#include "network/NetworkManager.h"
 
 namespace libspot {
 namespace data {
@@ -27,6 +28,7 @@ class Album : public QObject
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
   Q_PROPERTY(QString uri READ uri CONSTANT)
   Q_PROPERTY(QString release_date READ release_date CONSTANT)
+  Q_PROPERTY(QString albumType READ albumType CONSTANT)
   Q_PROPERTY(QString averageCoverColor READ averageCoverColor CONSTANT)
   Q_PROPERTY(QQmlListProperty<Artist> artists READ artists CONSTANT)
   Q_PROPERTY(QQmlListProperty<Track> tracks READ tracks CONSTANT)
@@ -41,6 +43,7 @@ public:
   const QString& imgUrl() const;
   const QString& uri() const;
   const QString& release_date() const;
+  const QString& albumType() const;
   QString& imgFileName();
   const QString& averageCoverColor() const;
 
@@ -49,6 +52,7 @@ public:
 
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@
 
+  Q_INVOKABLE void requestAlbumCover();
   Q_INVOKABLE void calculateAverageCoverColor();
 
   bool isEmpty() const;

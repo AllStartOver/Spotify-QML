@@ -89,8 +89,8 @@ public:
     if(file.open(QIODevice::WriteOnly)) {
       file.write(reply->readAll());
       file.close();
+      emit parent->signalTrackRequestCoverFinished();
     }
-    emit parent->signalTrackRequestCoverFinished();
   }
 };
 

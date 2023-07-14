@@ -21,6 +21,7 @@ public:
   Q_INVOKABLE void requestArtistByID(const QString& id);
   Q_INVOKABLE void requestArtistTopTracks(const QString& id);
   Q_INVOKABLE void requestArtistAlbums(const QString& id);
+  Q_INVOKABLE void requestArtistRelatedArtists(const QString& id);
   Q_INVOKABLE ArtistPage* getCurrentArtistPage();
   QQmlListProperty<ArtistPage> artistPages();
 
