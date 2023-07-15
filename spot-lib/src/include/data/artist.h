@@ -3,7 +3,12 @@
 
 #include <QObject>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QScopedPointer>
+#include <QFile>
+#include <QNetworkReply>
+
+#include "network/NetworkManager.h"
 
 namespace libspot {
 namespace data {
@@ -28,7 +33,9 @@ public:
   QString& imgFileName();  
 
   // MEMBER FUNCTIONS @@@@@@@@@@@@@@@@@@@
+  Q_INVOKABLE void requestArtistImage();
 signals:
+  void signalRequestArtistImageFinished();
 
 private:
   class Implementation;

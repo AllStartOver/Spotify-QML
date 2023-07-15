@@ -198,5 +198,10 @@ QQmlListProperty<Album> ArtistPage::appearsOn()
   return QQmlListProperty<Album>(this, &impl->appearsOn);
 }
 
+QQmlListProperty<Artist> ArtistPage::relatedArtists() 
+{
+  return QQmlListProperty<Artist>(this, &impl->relatedArtists);
+}
+
 
 }}

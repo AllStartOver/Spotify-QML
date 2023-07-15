@@ -25,6 +25,7 @@ class ArtistPage : public QObject
   Q_PROPERTY(QString id READ id CONSTANT)
   Q_PROPERTY(QString name READ name CONSTANT)
   Q_PROPERTY(QString imgUrl READ imgUrl CONSTANT)
+  Q_PROPERTY(QString uri READ uri CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
   Q_PROPERTY(QString averageCoverColor READ averageCoverColor CONSTANT)
   Q_PROPERTY(QQmlListProperty<Track> topTracks READ topTracks CONSTANT)

@@ -55,7 +55,10 @@ Rectangle {
             return 
           }
         }
-        playerAPI.startPlayback(track.context_uri, index)
+        var context_uri = artistAPI.getCurrentArtistPage().uri
+        console.log(context_uri)
+        console.log(track.uri)
+        playerAPI.startPlaybackByUris(context_uri, track.uri)
       }
     }
   }

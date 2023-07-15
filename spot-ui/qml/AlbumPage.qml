@@ -15,7 +15,6 @@ ListView {
   header: Rectangle {
     width: parent.width
     height: 400
-
     Image {
       id: cover
       anchors.left: parent.left
@@ -69,6 +68,10 @@ ListView {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
+            onClicked: {
+              artistAPI.requestArtistByID(modelData.id)
+              viewController.signalChangeArtistSource(Utils.QMLPath("ArtistPage.qml"), modelData.id)
+            }
           }
         }
         Text {
@@ -79,7 +82,7 @@ ListView {
         }
       }
       footer: Text {
-        text: album !== null ? album.release_date + " • " + album.tracks.length + " songs" : ""
+        text: album !== null ? album.release_date.slice(0, 4) + " • " + album.tracks.length + " songs" : ""
         color: Style.colorSpotifyWhite
         font.pixelSize: 15
       }
@@ -108,7 +111,7 @@ ListView {
       font.pixelSize: 15
       font.bold: true
       color: Style.colorSpotifyWhite
-      text: album !== null ? "Album" : ""
+      text: album !== null ? album.albumType : ""
     }
 
     Image {

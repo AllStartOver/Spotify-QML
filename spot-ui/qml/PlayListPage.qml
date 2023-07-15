@@ -22,10 +22,20 @@ ListView {
       anchors.leftMargin: 30
       anchors.top: parent.top
       anchors.topMargin: 60
-      height: 240
-      width: 240
+      height: 195
+      width: 195
       source: playList !== null ? "file:///" + executablePath + "/" + playList.imgFileName : ""
     } 
+
+    Rectangle {
+      anchors.top: cover.bottom
+      anchors.topMargin: 30
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      color: Style.colorSpotifyBlack
+      opacity: 0.1
+    }
 
     gradient: Gradient {
       orientation: Gradient.Vertical

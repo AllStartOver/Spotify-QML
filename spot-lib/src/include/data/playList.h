@@ -27,6 +27,7 @@ class PlayList : public QObject
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
   Q_PROPERTY(QString tracks_href READ tracks_href CONSTANT)
   Q_PROPERTY(QString uri READ uri CONSTANT)
+  Q_PROPERTY(bool isPublic READ isPublic CONSTANT)
   Q_PROPERTY(QString averageCoverColor READ averageCoverColor CONSTANT)
   Q_PROPERTY(QQmlListProperty<Track> tracks READ tracks CONSTANT)
 public:
@@ -42,6 +43,7 @@ public:
   QString owner() const;
   QString& imgFileName();
   const QString& uri() const;
+  bool isPublic() const;
   QString& averageCoverColor();
 
   QQmlListProperty<Track> tracks();

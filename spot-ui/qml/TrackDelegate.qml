@@ -10,7 +10,12 @@ Rectangle {
   property bool bgContainsMouse: false
   property bool isPlaying : playerState.uri === track.context_uri && playerState.trackID === track.id
   property bool isPaused: false
-  color: bgContainsMouse ? Style.colorSpotifyLightGray : Style.colorSpotifyDarkGray
+  anchors.left: parent.left
+  anchors.right: parent.right
+  anchors.leftMargin: 20
+  anchors.rightMargin: 20
+  color: bgContainsMouse ? Style.colorSpotifyLightGray : "transparent"
+  radius: 10
 
   Rectangle {
     id: trackIndex
@@ -28,7 +33,6 @@ Rectangle {
       color: "white"
       visible: isPlaying? false : bgContainsMouse? false : true
     }
-
     Image {
       anchors.centerIn: parent
       width: 12
@@ -36,7 +40,6 @@ Rectangle {
       source: !isPlaying || isPaused ? Utils.ImagePath("TrackPlay.svg") : bgContainsMouse? Utils.ImagePath("PlaylistPauseWhite.svg") : Utils.ImagePath("PlaylistPlayGreen.svg")
       visible: isPlaying ? true : bgContainsMouse? true : false
     }
-
     MouseArea {
       anchors.fill: parent
       onClicked: {
@@ -55,7 +58,6 @@ Rectangle {
       }
     }
   }
-
   Image {
     id: trackCover
     anchors.left: trackIndex.right
@@ -70,7 +72,6 @@ Rectangle {
       }
     }
   }
-
   Text {
     id: trackName
     anchors.left: trackCover.right
@@ -84,9 +85,9 @@ Rectangle {
     color: isPlaying? Style.colorSpotifyGreen : Style.colorSpotifyWhite
     elide: Text.ElideRight
   }
-
   ListView {
     id: trackArtists
+    z: 2
     visible: true
     anchors.left: trackCover.right
     anchors.leftMargin: 10
@@ -101,6 +102,17 @@ Rectangle {
         font.pixelSize: 12
         text: modelData.name
         color: bgContainsMouse ? Style.colorSpotifyWhite : Style.colorSpotifyLightWhite
+        font.underline: artistMouseArea.containsMouse
+        MouseArea {
+          id: artistMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: {
+            artistAPI.requestArtistByID(modelData.id)
+            viewController.signalChangeArtistSource(Utils.QMLPath("ArtistPage.qml"), modelData.id)
+          }
+        }
       }
       Text {
         font.pixelSize: 12
@@ -109,7 +121,6 @@ Rectangle {
       }
     }
   }
-
   Text {
     id: albumName
     z: 2
@@ -135,17 +146,15 @@ Rectangle {
       }
     }
   }
-
   Text {
     id: duration
     anchors.right: parent.right
     anchors.rightMargin: 30
     anchors.verticalCenter: parent.verticalCenter
-    text: Utils.formatTime(track.duration_ms % 1000)
+    text: Utils.formatTime(Math.round(track.duration_ms % 1000))
     font.pixelSize: 12
     color: Style.colorSpotifyLightWhite
   }
-
   MouseArea {
     id: trackMouseArea
     anchors.fill: parent
@@ -161,14 +170,12 @@ Rectangle {
       bgContainsMouse = false
     }
   }
-
   Connections {
     target: playerState
     function onSignalContextChanged() {
       isPlaying = playerState.uri === track.context_uri && playerState.trackID === track.id
     }
   }
-
   Component.onCompleted: {
     track.signalTrackRequestCover(track.img_url)
   }

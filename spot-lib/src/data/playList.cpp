@@ -18,6 +18,7 @@ public:
     tracks_href = json["tracks"].toObject()["href"].toString();
     owner = json["owner"].toObject()["display_name"].toString();
     uri = json["uri"].toString();
+    isPublic = json["public"].toBool();
   }
   PlayList *parent;
   QString id;
@@ -27,6 +28,7 @@ public:
   QString owner;
   QString imgFileName;
   QString uri;
+  bool isPublic;
   QString averageCoverColor;
   QList<Track*> tracks;
 
@@ -89,6 +91,7 @@ QString PlayList::tracks_href() const { return impl->tracks_href; }
 QString PlayList::owner() const { return impl->owner; }
 QString& PlayList::imgFileName() { return impl->imgFileName; }
 const QString& PlayList::uri() const { return impl->uri; }
+bool PlayList::isPublic() const { return impl->isPublic; }
 QString& PlayList::averageCoverColor() { return impl->averageCoverColor; }
 
 QQmlListProperty<Track> PlayList::tracks()

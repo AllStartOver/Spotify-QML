@@ -7,6 +7,11 @@ import Styles 1.0
 Item {
   property var stackPages: []
   property int currentIndex: 0
+
+  Rectangle {
+    anchors.fill: parent
+    color: Style.colorSpotifyDarkGray
+  }
   Image {
     z: 3
     id: backwardButton
@@ -41,6 +46,11 @@ Item {
         {
           pageLoader.source = page.source
           albumAPI.requestAlbumByID(page.id)
+        }
+        else if (page.source == Utils.QMLPath("ArtistPage.qml"))
+        {
+          pageLoader.source = page.source
+          artistAPI.requestArtistByID(page.id)
         }
       }
     }
@@ -80,6 +90,11 @@ Item {
         {
           pageLoader.source = page.source
           albumAPI.requestAlbumByID(page.id)
+        }
+        else if (page.source == Utils.QMLPath("ArtistPage.qml"))
+        {
+          pageLoader.source = page.source
+          artistAPI.requestArtistByID(page.id)
         }
       }
     }

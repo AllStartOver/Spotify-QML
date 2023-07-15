@@ -73,6 +73,7 @@ Rectangle {
 
   ListView {
     id: trackArtists
+    z: 2
     anchors.left: trackIndex.right
     anchors.leftMargin: 10
     anchors.verticalCenter: parent.verticalCenter
@@ -86,6 +87,17 @@ Rectangle {
         font.pixelSize: 12
         text: modelData.name
         color: bgContainsMouse ? Style.colorSpotifyWhite : Style.colorSpotifyLightWhite
+        font.underline: artistMouseArea.containsMouse
+        MouseArea {
+          id: artistMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: {
+            viewController.signalChangeArtistSource(Utils.QMLPath("ArtistPage.qml"), modelData.id)
+            artistAPI.requestArtistByID(modelData.id)
+          }
+        }
       }
       Text {
         font.pixelSize: 12 

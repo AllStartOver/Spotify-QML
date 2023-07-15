@@ -9,7 +9,7 @@ Flickable {
   id: root
   width: parent.width
   height: parent.height
-  contentHeight: 400 + topTracksList.contentHeight + albumHeader.height + discographyList.height
+  contentHeight: 400 + topTracksList.contentHeight + albumHeader.height + discographyList.height + relatedArtistsHeader.height + relatedArtistsList.height
   interactive: true
   clip: true
 
@@ -83,7 +83,6 @@ Flickable {
           hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
           onClicked: {
-            console.log("playButton clicked")
           }
         } 
       }
@@ -267,6 +266,54 @@ Flickable {
       }
     }
   }
+
+  Rectangle {
+    id: relatedArtistsHeader
+    anchors.top: discographyList.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 100
+    color: "transparent"
+
+    Text {
+      anchors.top: parent.top
+      anchors.topMargin: 20
+      anchors.left: parent.left
+      anchors.leftMargin: 20
+      text: "Fans also like"
+      font.pixelSize: 20
+      font.bold: true
+      color: Style.colorSpotifyWhite
+    }
+  }
+
+  ListView {
+    id: relatedArtistsList
+    anchors.top: relatedArtistsHeader.bottom
+    anchors.left: parent.left
+    anchors.leftMargin: 40
+    anchors.right: parent.right
+    anchors.rightMargin: 40
+    height: 250
+    width: contentWidth
+
+    orientation: ListView.Horizontal
+
+    spacing: 30
+
+    delegate: ArtistRelatedArtistDelegate {
+      artist: modelData
+    }
+
+    Connections {
+      target: artist
+      enabled: artist !== null
+      function onSignalArtistPageRequestRelatedArtistsFinished() {
+        console.log("onSignalArtistPageRequestRelatedArtistsFinished")
+        relatedArtistsList.model = artistAPI.getCurrentArtistPage().relatedArtists
+      }
+    }
+  }
   Connections {
     target: artistAPI
     function onSignalRequestArtistByIDFinished() {
@@ -274,6 +321,7 @@ Flickable {
       artist = artistAPI.getCurrentArtistPage()
       artistAPI.requestArtistTopTracks(artist.id)
       artistAPI.requestArtistAlbums(artist.id)
+      artistAPI.requestArtistRelatedArtists(artist.id)
       artist.signalArtistPageRequestCover(artist.imgUrl, artist.id)
     }
   }
