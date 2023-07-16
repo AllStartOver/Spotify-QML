@@ -24,6 +24,7 @@ class Track : public QObject
   Q_PROPERTY(QString name READ name CONSTANT)
   Q_PROPERTY(QString album READ album CONSTANT)
   Q_PROPERTY(QString album_id READ album_id CONSTANT)
+  Q_PROPERTY(QString uri READ uri CONSTANT)
   Q_PROPERTY(QString imgFileName READ imgFileName CONSTANT)
   Q_PROPERTY(QString img_url READ img_url CONSTANT)
   Q_PROPERTY(QString context_uri READ context_uri CONSTANT)
@@ -40,6 +41,7 @@ public:
   QString name() const;
   QString album() const;
   const QString& album_id() const;
+  const QString& uri() const;
   const QString& imgFileName() const;
   const QString& img_url() const;
   const QString& context_uri() const;

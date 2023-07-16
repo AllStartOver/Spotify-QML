@@ -30,14 +30,11 @@ public:
   void getPlayListTracks(const QString &id);
   Q_INVOKABLE PlayList* getPlayListByID(const QString &id);
   Q_INVOKABLE QString& currentPlayListID();
-  Q_INVOKABLE void calculateAverageCoverColor(const QString &id);
 
 public slots:
 
 signals: 
   void signalGetCurrentUserPlaylistsFinished();
-  void signalGetPlayListTracksFinished(QString id);
-  void signalMock();
 private:
   class Implementation;
   QScopedPointer<Implementation> impl;

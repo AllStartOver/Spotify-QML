@@ -63,33 +63,31 @@ public:
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onResumePlayback(reply); });
   }
 
-  void startPlayback(QString context_uri, int offset)
+  void startPlayback(QString context_uri, QString offset, QStringList uris)
   {
     QString endpoint = "/play";
     QNetworkRequest request = createBaseRequest(endpoint);
     QJsonObject json;
-    json["context_uri"] = context_uri;
-    QJsonObject offsetJson;
-    offsetJson["position"] = offset;
-    json["offset"] = offsetJson;
-    QJsonDocument doc(json);
-    QByteArray data = doc.toJson();
-    QNetworkReply *reply = manager->put(request, data);
-    QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onStartPlayback(reply); });
-  }
-
-  void startPlaybackByUris(QString context_uri, QString uri)
-  {
-    QString endpoint = "/play";
-    QNetworkRequest request = createBaseRequest(endpoint);
-    QJsonObject json;
-    json["context_uri"] = context_uri;
-    QJsonArray urisArray;
-    urisArray.append(uri);
-    json["uris"] = urisArray;
-    QJsonDocument doc(json);
-    QByteArray data = doc.toJson();
-    QNetworkReply *reply = manager->put(request, data);
+    if (!context_uri.isEmpty())
+    {
+      json["context_uri"] = context_uri;
+    }
+    if(!offset.isEmpty())
+    {
+      QJsonObject offsetJson;
+      offsetJson["uri"] = offset;
+      json["offset"] = offsetJson;
+    }
+    if(!uris.isEmpty())
+    {
+      QJsonArray urisJson;
+      for (auto uri : uris)
+      {
+        urisJson.append(uri);
+      }
+      json["uris"] = urisJson;
+    }
+    QNetworkReply *reply = manager->put(request, QJsonDocument(json).toJson());
     QObject::connect(reply, &QNetworkReply::finished, parent, [reply = reply, this]() { onStartPlayback(reply); });
   }
 
@@ -279,14 +277,12 @@ void PlayerAPI::resumePlayback()
   return impl->resumePlayback();
 }
 
-void PlayerAPI::startPlayback(QString context_uri, int offset)
+void PlayerAPI::startPlayback(QString context_uri, QString offset, QStringList uris)
 {
-  return impl->startPlayback(context_uri, offset);
-}
-
-void PlayerAPI::startPlaybackByUris(QString context_uri, QString uri)
-{
-  return impl->startPlaybackByUris(context_uri, uri);
+  qDebug() << context_uri;
+  qDebug() << offset;
+  qDebug() << uris;
+  return impl->startPlayback(context_uri, offset, uris);
 }
 
 void PlayerAPI::prevTrack()
